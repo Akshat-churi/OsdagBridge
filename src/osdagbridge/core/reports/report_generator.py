@@ -939,6 +939,10 @@ def generate_report(payload, request):
                     fig_paths[attr] = p.replace('\\', '/')
             payload.figure_data.clear()  # bytes no longer needed — free RAM now
 
+            # Compute and inject quantities for Chapter 7 early so BOQ charts can use them
+            quantities = calculate_material_quantities(payload.inputs, payload.output_dict)
+            payload.inputs.update(quantities)
+
             # ── Generate UR (Utilization Ratio) summary charts programmatically ──
             try:
                 from osdagbridge.core.reports.ur_charts import generate_ur_charts
@@ -947,6 +951,15 @@ def generate_report(payload, request):
                     fig_paths[k] = v.replace('\\', '/')
             except Exception as e:
                 logger.warning("Failed to generate UR charts: %s", e)
+
+            # ── Generate BOQ (Bill of Quantities) charts programmatically ──
+            try:
+                from osdagbridge.core.reports.boq_charts import generate_boq_charts
+                boq_chart_paths = generate_boq_charts(payload.inputs, tmp_images)
+                for k, v in boq_chart_paths.items():
+                    fig_paths[k] = v.replace('\\', '/')
+            except Exception as e:
+                logger.warning("Failed to generate BOQ charts: %s", e)
 
             # ── Write title-page logos into tmp_dir/assets (auto-deleted) ──
             # Nothing is left next to the PDF. Latex paths are relative to tmp_dir.
@@ -966,10 +979,6 @@ def generate_report(payload, request):
             if org_logo_src:
                 shutil.copy2(org_logo_src, os.path.join(tmp_assets, 'org_logo.png'))
                 org_logo_latex = 'assets/org_logo.png'
-
-            # Compute and inject quantities for Chapter 7
-            quantities = calculate_material_quantities(payload.inputs, payload.output_dict)
-            payload.inputs.update(quantities)
 
             # ── Assemble LaTeX document (fig_paths now has tmp_dir paths) ──
             bridge = ReportDataBridge(payload.output_dict, payload.inputs, payload)
@@ -1000,7 +1009,7 @@ def generate_report(payload, request):
             if 'drawings' in secs and payload.options.include_figures:
                 doc_parts.append(ch6_drawings(fig_paths))
 
-            doc_parts.append(ch7_quantities(payload.inputs))
+            doc_parts.append(ch7_quantities(payload.inputs, fig_paths))
 
             mode = str(payload.inputs.get(KEY_DESIGN_MODE, "Optimized")).strip().lower()
             is_custom = mode in {"custom", "customized"}

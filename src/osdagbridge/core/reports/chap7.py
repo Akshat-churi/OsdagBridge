@@ -1,6 +1,42 @@
 from osdagbridge.core.reports.styles import STYLE_BOQ_TABLE
 
-def ch7_quantities(input_dict):
+def ch7_quantities(input_dict, fig_paths=None):
+    vis_latex = ""
+    if fig_paths:
+        parts = []
+        steel_chart = fig_paths.get("boq_steel_tonnage")
+        cr_chart = fig_paths.get("boq_concrete_rebar")
+        
+        if steel_chart or cr_chart:
+            parts.append(r"""
+\vspace{1em}
+\subsection{Material Quantity Visualizations}
+\label{subsec:material-visualizations}
+""")
+        if steel_chart:
+            p = str(steel_chart).replace("\\", "/")
+            parts.append(r"""
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.80\textwidth]{""" + p + r"""}
+\caption{Structural Steel Tonnage Breakdown by Superstructure Component}
+\label{fig:ch7-steel-tonnage}
+\par\vspace{3pt}
+{\footnotesize\textit{Note: Cross bracing and end diaphragm quantities are reported as N.A. pending transverse member design execution; only girder structural steel tonnage is quantified.}}
+\end{figure}
+""")
+        if cr_chart:
+            p = str(cr_chart).replace("\\", "/")
+            parts.append(r"""
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.84\textwidth]{""" + p + r"""}
+\caption{Concrete Volume ($\text{m}^3$) vs. Reinforcement Steel Weight (MT)}
+\label{fig:ch7-concrete-rebar}
+\end{figure}
+""")
+        vis_latex = "\n".join(parts)
+
     return r"""
 \chapter{Material Take-off \& Quantity Summary}
 \label{ch:material-takeoff}
@@ -30,6 +66,8 @@ def ch7_quantities(input_dict):
 \hline
 2(c) & Cross Bracing - Diagonal Chord & """ + str(input_dict.get("bracing_diag_vol_formula", "N.A.")) + r""" & """ + str(input_dict.get("bracing_diag_qty", "N.A.")) + r""" & """ + str(input_dict.get("bracing_diag_vol_total", "N.A.")) + r""" & """ + str(input_dict.get("bracing_diag_wt_single", "N.A.")) + r""" & """ + str(input_dict.get("bracing_diag_wt_total", "N.A.")) + r""" \\
 \hline
+2(d) & End Diaphragms & """ + str(input_dict.get("end_diaphragm_vol_formula", "N.A.")) + r""" & """ + str(input_dict.get("end_diaphragm_qty", "N.A.")) + r""" & """ + str(input_dict.get("end_diaphragm_vol_total", "N.A.")) + r""" & """ + str(input_dict.get("end_diaphragm_wt_single", "N.A.")) + r""" & """ + str(input_dict.get("end_diaphragm_wt_total", "N.A.")) + r""" \\
+\hline
 3 & Concrete (M40) for Deck Slab & """ + str(input_dict.get("concrete_deck_vol_formula", "N.A.")) + r""" & """ + str(input_dict.get("concrete_deck_qty", "N.A.")) + r""" & """ + str(input_dict.get("concrete_deck_vol_total", "N.A.")) + r""" & """ + str(input_dict.get("concrete_deck_wt_single", "N.A.")) + r""" & """ + str(input_dict.get("concrete_deck_wt_total", "N.A.")) + r""" \\
 \hline
 4 & Reinforcement Steel (Fe 500) & """ + str(input_dict.get("rebar_deck_vol_formula", "N.A.")) + r""" & """ + str(input_dict.get("rebar_deck_qty", "N.A.")) + r""" & """ + str(input_dict.get("rebar_deck_vol_total", "N.A.")) + r""" & """ + str(input_dict.get("rebar_deck_wt_single", "N.A.")) + r""" & """ + str(input_dict.get("rebar_deck_wt_total", "N.A.")) + r""" \\
@@ -39,6 +77,5 @@ def ch7_quantities(input_dict):
 6 & Crash Barrier & """ + str(input_dict.get("crash_barrier_vol_formula", "N.A.")) + r""" & """ + str(input_dict.get("crash_barrier_qty", "N.A.")) + r""" & """ + str(input_dict.get("crash_barrier_vol_total", "N.A.")) + r""" & """ + str(input_dict.get("crash_barrier_wt_single", "N.A.")) + r""" & """ + str(input_dict.get("crash_barrier_wt_total", "N.A.")) + r""" \\
 \hline
 \end{longtable}
-"""
-
-
+\endgroup
+""" + vis_latex
