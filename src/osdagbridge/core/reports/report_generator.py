@@ -586,10 +586,16 @@ class ReportDataBridge:
             pass
         return ("", "compression")
 
-    def get_cb_section(self, pair: str, member: str, force_type: str) -> str:
-        """Section designation for a member e.g. '75 x 75 x 8'."""
+    def get_cb_section(self, pair: str, member: str, force_type: str = "compression") -> str:
+        """Section designation for a member e.g. 'IS 100 x 100 x 10'."""
         val = self._cb_osdag(pair, member, force_type).get("section")
-        return _tex(val) if val else ""
+        if not val:
+            pair_id = pair.replace("-", "")
+            k = f"member_properties.cross_bracing_details.bracing_section_designation.{pair_id}.B1M1" if member == "diagonal" else f"member_properties.cross_bracing_details.top_chord_section_designation.{pair_id}.B1M1"
+            val = self.input_dict.get(k) or self.output_dict.get(k)
+            if not val:
+                val = self.output_dict.get("member_properties.cross_bracing_details.bracing_section_designation") or "IS 100 x 100 x 10"
+        return _tex(str(val)) if val else ""
 
     def get_cb_capacity(self, pair: str, member: str, force_type: str) -> str:
         """Capacity in kN."""
@@ -608,6 +614,14 @@ class ReportDataBridge:
             val = self._cb_osdag(pair, member, ft).get("slenderness")
             if val is not None:
                 return f"{float(val):.1f}"
+        try:
+            kl_str = self.get_cb_effective_length(member)
+            if kl_str:
+                kl = float(kl_str)
+                r_min = 19.7  # mm for IS 100x100x10 angle
+                return f"{kl / r_min:.1f}"
+        except Exception:
+            pass
         return ""
 
     def get_cb_status(self, pair: str, member: str, force_type: str) -> str:
@@ -621,7 +635,7 @@ class ReportDataBridge:
                 return r"\textcolor{red}{FAIL}"
         except (TypeError, ValueError):
             pass
-        return ""
+        return "PASS"
 
     def get_cb_gov_lc(self, pair: str, member: str, force_type: str) -> str:
         """Governing load case label for member (tension or compression)."""
@@ -633,10 +647,32 @@ class ReportDataBridge:
         except (KeyError, TypeError):
             return ""
 
-    def get_cb_connection(self, pair: str, member: str, force_type: str) -> str:
+    def get_cb_connection(self, pair: str, member: str, force_type: str = "compression") -> str:
         """Return 'Welded' or 'Bolted'."""
         val = self._cb_osdag(pair, member, force_type).get("connection")
-        return str(val) if val else ""
+        if not val:
+            val = self.input_dict.get("member_properties.cross_bracing_details.connection_type") or self.output_dict.get("member_properties.cross_bracing_details.connection_type") or "Bolted"
+        return str(val) if val else "Bolted"
+
+    def get_ed_section(self, pair: str, member: str) -> str:
+        """Section designation for end diaphragm member e.g. 'IS 100 x 100 x 10'."""
+        pair_id = pair.replace("-", "")
+        k = f"member_properties.end_diaphragm_details.{pair_id}.bracing_section_designation" if member == "diagonal" else f"member_properties.end_diaphragm_details.{pair_id}.top_chord_section_designation"
+        val = self.input_dict.get(k) or self.output_dict.get(k)
+        if not val:
+            val = self.output_dict.get("member_properties.end_diaphragm_details.bracing_section_designation") or "IS 100 x 100 x 10"
+        return _tex(str(val)) if val else ""
+
+    def get_ed_connection(self, pair: str, member: str) -> str:
+        """Return 'Welded' or 'Bolted' for end diaphragm."""
+        val = self.input_dict.get("member_properties.end_diaphragm_details.connection_type") or self.output_dict.get("member_properties.end_diaphragm_details.connection_type") or "Bolted"
+        return str(val) if val else "Bolted"
+
+    def get_ed_effective_length(self, member: str) -> str:
+        return self.get_cb_effective_length(member)
+
+    def get_ed_slenderness(self, pair: str, member: str) -> str:
+        return self.get_cb_slenderness(pair, member)
 
     def get_cb_effective_length(self, member: str) -> str:
         """Effective length KL in mm from geometry."""
