@@ -210,10 +210,11 @@ def preamble(project_name, job_number, report_date, report_version='Rev 0'):
 \setlength{\arrayrulewidth}{0.5pt}
 \setlength{\extrarowheight}{1.0pt}
 
-% Prevent tables from overflowing past the page bottom:
-% if fewer than 5 baseline-skips remain, break to the next page first.
+% Prevent standard float tables from overflowing past page bottom:
 \BeforeBeginEnvironment{table}{\needspace{5\baselineskip}}
-\BeforeBeginEnvironment{longtable}{\needspace{5\baselineskip}}
+% Note: Do NOT apply \needspace to longtable via \BeforeBeginEnvironment as longtable
+% uses \vsplit which fails on needspace's negative infinite glue shrinkage, causing
+% 0-height splits and orphan "Continued from previous page" headers on page 1 of tables.
 
 \definecolor{osdagGreen}{HTML}{91B014}
 
