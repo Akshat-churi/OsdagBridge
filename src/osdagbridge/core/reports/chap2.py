@@ -71,6 +71,14 @@ from osdagbridge.core.utils.common import (
 )
 
 from osdagbridge.core.reports.report_utils import _render_value, get_girder_entries, _tex
+from osdagbridge.core.reports.styles import (
+    STYLE_TWO_COL, STYLE_GIRDER_GENERAL_INFO, STYLE_GIRDER_DIMENSIONS,
+    STYLE_GIRDER_STIFFENERS, compute_colspec
+)
+
+STYLE_CB_PROPERTIES = compute_colspec([('C', 0.16), ('C', 0.20), ('C', 0.22), ('C', 0.24), ('C', 0.18)])
+STYLE_ED_PROPERTIES = compute_colspec([('C', 0.18), ('C', 0.24), ('C', 0.28), ('C', 0.30)])
+
 
 def ch2_input_parameters(m, input_dict, output_dict=None):
     girder_entries = get_girder_entries(input_dict)
@@ -99,7 +107,7 @@ This section documents all inputs provided to OsdagBridge. User-provided inputs 
 \begin{table}[H]
 \caption{\textbf{Project Location}}
 \label{subsec:project-location}
-\begin{tabular}{|L{5.5cm}|L{8.5cm}|}
+\begin{tabular}{""" + STYLE_TWO_COL + r"""}
 \hline
 \textbf{parameter} & \textbf{value} \\
 \hline
@@ -120,7 +128,7 @@ This section documents all inputs provided to OsdagBridge. User-provided inputs 
 \begin{table}[H]
 \caption{\textbf{Bridge Geometry}}
 \label{subsec:bridge-geometry}
-\begin{tabular}{|L{5.5cm}|L{8.5cm}|}
+\begin{tabular}{""" + STYLE_TWO_COL + r"""}
 \hline
 \textbf{parameter} & \textbf{value} \\
 \hline
@@ -143,7 +151,7 @@ This section documents all inputs provided to OsdagBridge. User-provided inputs 
 \begin{table}[H]
 \caption{\textbf{Material Selection}}
 \label{subsec:material}
-\begin{tabular}{|L{5.5cm}|L{8.5cm}|}
+\begin{tabular}{""" + STYLE_TWO_COL + r"""}
 \hline
 \textbf{parameter} & \textbf{value} \\
 \hline
@@ -167,13 +175,13 @@ Where the user has modified additional inputs, those values are reported here. W
 
 \vspace{0.8cm}
 
-\begin{longtable}{|L{5.5cm}|p{10.0cm}|}
+\begin{longtable}{""" + STYLE_TWO_COL + r"""}
 \caption{\textbf{Typical Section Details}} \\
 \hline
 \textbf{parameter} & \textbf{value} \\
 \hline
 \endfirsthead
-\multicolumn{4}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
+\multicolumn{2}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
 \hline
 \textbf{parameter} & \textbf{value} \\
 \hline
@@ -200,13 +208,13 @@ Where the user has modified additional inputs, those values are reported here. W
 
 \vspace{0.8em}
 
-\begin{longtable}{|L{5.5cm}|p{10.0cm}|}
+\begin{longtable}{""" + STYLE_TWO_COL + r"""}
 \caption{\textbf{Components Details}} \\
 \hline
 \textbf{parameter} & \textbf{value} \\
 \hline
 \endfirsthead
-\multicolumn{4}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
+\multicolumn{2}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
 \hline
 \textbf{parameter} & \textbf{value} \\
 \hline
@@ -324,13 +332,13 @@ def _girder_tables(input_dict, n_girders):
 \noindent
             
 \vspace{4pt}
-\begin{longtable}{|L{2.2cm}|L{1.8cm}|p{3.8cm}|p{3.8cm}|p{3.8cm}|}
+\begin{longtable}{""" + STYLE_GIRDER_GENERAL_INFO + r"""}
 \caption{\textbf{Girder General Information}} \\
 \hline
 \textbf{Girder} & \textbf{Member ID} & \textbf{Design Mode} & \textbf{Girder Type} & \textbf{Girder Symmetry} \\[6pt]
 \hline
 \endfirsthead
-\multicolumn{7}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
+\multicolumn{5}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
 \hline
 \textbf{Girder} & \textbf{Member ID} & \textbf{Design Mode} & \textbf{Girder Type} & \textbf{Girder Symmetry} \\[6pt]
 \hline
@@ -346,7 +354,7 @@ def _girder_tables(input_dict, n_girders):
 \vspace{0.6em}
 
 \vspace{4pt}
-\begin{longtable}{|L{1.8cm}|L{2.3cm}|L{1.8cm}|p{4.8cm}|p{4.8cm}|}
+\begin{longtable}{""" + STYLE_GIRDER_DIMENSIONS + r"""}
 \caption{\textbf{Girder Section Dimensions}} \\
 \hline
 \textbf{Girder} & \textbf{Total Depth, D (mm)} & \textbf{Web, $t_w$ (mm)} & \textbf{Top Flange (b\textsubscript{tf}, t\textsubscript{tf}) mm} & \textbf{Bottom Flange (b\textsubscript{bf}, t\textsubscript{bf}) mm} \\[6pt]
@@ -368,12 +376,16 @@ def _girder_tables(input_dict, n_girders):
 \vspace{0.6em}
 
 \vspace{4pt}
-\begin{longtable}{|L{1.4cm}|p{2.2cm}|p{2.2cm}|p{3.0cm}|p{2.4cm}|p{2.2cm}|}
+\begin{longtable}{""" + STYLE_GIRDER_STIFFENERS + r"""}
 \caption{\textbf{Girder Restraint and Stiffener Details}}\\
 \hline
 \textbf{Girder} & \textbf{Torsional / Warping Restraint} & \textbf{Web Philosophy} & \textbf{Intermediate Stiffeners} & \textbf{Longitudinal Stiffeners} & \textbf{Bearing Stiffener} \\[6pt]
 \hline
 \endfirsthead
+\multicolumn{6}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
+\hline
+\textbf{Girder} & \textbf{Torsional / Warping Restraint} & \textbf{Web Philosophy} & \textbf{Intermediate Stiffeners} & \textbf{Longitudinal Stiffeners} & \textbf{Bearing Stiffener} \\[6pt]
+\hline
 \endhead
 
 """
@@ -424,17 +436,14 @@ def _bracing_tables(input_dict, n_girders):
 \newpage
 
 \vspace{0.4em}
-\setlength{\tabcolsep}{4pt}
-\setlength\LTleft{0pt}
-\setlength\LTright{\fill}
 
-\begin{longtable}{|L{2.2cm}|L{2.2cm}|L{3.0cm}|L{2.5cm}|C{1.8cm}|C{1.8cm}|}
+\begin{longtable}{""" + STYLE_CB_PROPERTIES + r"""}
 \caption{\textbf{Member Properties: Cross Bracing Details}} \\
 \hline
 \textbf{Location} & \textbf{Member IDs} & \textbf{Type of Bracing} & \textbf{Bracing Section} & \textbf{Spacing (m)} \\
 \hline
 \endfirsthead
-\multicolumn{8}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
+\multicolumn{5}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
 \hline
 \textbf{Location} & \textbf{Member IDs} & \textbf{Type of Bracing} & \textbf{Bracing Section} & \textbf{Spacing (m)} \\
 \hline
@@ -449,17 +458,14 @@ def _bracing_tables(input_dict, n_girders):
 
 \vspace{0.4em}
 \noindent
-\setlength{\tabcolsep}{4pt}
-\setlength\LTleft{0pt}
-\setlength\LTright{\fill}
 
-\begin{longtable}{|L{2.2cm}|L{2.2cm}|L{3.0cm}|L{2.5cm}|C{1.8cm}|C{1.8cm}|}
+\begin{longtable}{""" + STYLE_ED_PROPERTIES + r"""}
 \caption{\textbf{Member Properties: End Diaphragm Details}} \\
 \hline
 \textbf{Location} & \textbf{Member IDs} & \textbf{Type of Bracing} & \textbf{Bracing Section} \\
 \hline
 \endfirsthead
-\multicolumn{8}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
+\multicolumn{4}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
 \hline
 \textbf{Location} & \textbf{Member IDs} & \textbf{Type of Bracing} & \textbf{Bracing Section} \\
 \hline
@@ -483,13 +489,13 @@ def _shear_connector_table(input_dict, output_dict=None):
 \vspace{2.2em}
 
 \vspace{0.4em}
-\begin{longtable}{|L{5.5cm}|p{10.0cm}|}
+\begin{longtable}{""" + STYLE_TWO_COL + r"""}
 \caption{\textbf{Shear Connector Details}} \\
 \hline
 \textbf{parameter} & \textbf{value} \\
 \hline
 \endfirsthead
-\multicolumn{4}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
+\multicolumn{2}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
 \hline
 \textbf{parameter} & \textbf{value} \\
 \hline
@@ -521,13 +527,13 @@ def _safety_factors_table(input_dict):
 \noindent\textit{Note: All values are per IRC 22 Table 1 unless user-modified.}
 
 \vspace{0.4em}
-\begin{longtable}{|L{5.5cm}|p{10.0cm}|}
+\begin{longtable}{""" + STYLE_TWO_COL + r"""}
 \caption{\textbf{Partial Safety Factors}} \\
 \hline
 \textbf{parameter} & \textbf{value} \\
 \hline
 \endfirsthead
-\multicolumn{4}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
+\multicolumn{2}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
 \hline
 \textbf{parameter} & \textbf{value} \\
 \hline

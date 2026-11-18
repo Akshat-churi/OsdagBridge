@@ -5,7 +5,13 @@ from osdagbridge.core.utils.common import (
     KEY_SD_DEFL_LIVE,
     KEY_SD_DEFL_TOTAL,
 )
-from osdagbridge.core.reports.report_utils import _tex, _fig_embed
+from osdagbridge.core.reports.report_utils import (
+    _tex,
+    _fig_embed,
+    STYLE_TWO_COL,
+    STYLE_MAX_DEMANDS_9COL,
+    STYLE_REACTIONS_3COL,
+)
 
 if TYPE_CHECKING:
     from .report_generator import ReportDataBridge
@@ -86,16 +92,7 @@ A grillage model was used for structural analysis. The deck is idealized as a gr
 \setlength{\tabcolsep}{3pt}
 \renewcommand{\arraystretch}{1.25}
 
-\begin{longtable}{|
->{\centering\arraybackslash}p{3.1cm}|
->{\centering\arraybackslash}p{1.7cm}|
->{\centering\arraybackslash}p{1.2cm}|
->{\centering\arraybackslash}p{1.3cm}|
->{\centering\arraybackslash}p{1.7cm}|
->{\centering\arraybackslash}p{1.2cm}|
->{\centering\arraybackslash}p{1.3cm}|
->{\centering\arraybackslash}p{1.6cm}|
->{\centering\arraybackslash}p{1.6cm}|}
+\begin{longtable}{""" + STYLE_MAX_DEMANDS_9COL + r"""}
 
 \caption{\textbf{Summary of Maximum Demands}}\\
 \hline
@@ -137,17 +134,17 @@ A grillage model was used for structural analysis. The deck is idealized as a gr
 """ + merged_body + r"""
 
 \hline
-\end{longtable}
+\endlongtable
 \endgroup
 
 \vspace{1em}
-\begin{longtable}{|>{\centering\arraybackslash}p{5.2cm}|>{\centering\arraybackslash}p{5.2cm}|>{\centering\arraybackslash}p{5.2cm}|}
+\begin{longtable}{""" + STYLE_REACTIONS_3COL + r"""}
 \caption{\textbf{Reactions at Supports}} \\
 \hline
 \textbf{Load Case} & \textbf{Left Support (kN)} & \textbf{Right Support (kN)} \\[6pt]
 \hline
 \endfirsthead
-\multicolumn{5}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
+\multicolumn{3}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
 \hline
 \textbf{Load Case} & \textbf{Left Support (kN)} & \textbf{Right Support (kN)} \\[6pt]
 \hline
@@ -165,13 +162,13 @@ A grillage model was used for structural analysis. The deck is idealized as a gr
 \end{longtable}
 
 \vspace{1em}
-\begin{longtable}{|L{7cm}|p{8.5cm}|}
+\begin{longtable}{""" + STYLE_TWO_COL + r"""}
 \caption{\textbf{Deflection Summary (Live Load \& Total Load)}} \\
 \hline
 \textbf{parameter} & \textbf{value} \\
 \hline
 \endfirsthead
-\multicolumn{4}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
+\multicolumn{2}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
 \hline
 \textbf{parameter} & \textbf{value} \\
 \hline

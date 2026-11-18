@@ -4,6 +4,8 @@ from osdagbridge.core.utils.common import (
     KEY_MP_GIRDER_DEPTH,
     KEY_TS_NO_OF_GIRDERS
 )
+from .styles import *
+
 
 
 def _tex(value):

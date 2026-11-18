@@ -141,7 +141,16 @@ from osdagbridge.core.utils.common import (
     KEY_UTIL_SHEAR
 )
 
-from osdagbridge.core.reports.report_utils import _tex, _render_value, get_girder_entries
+from osdagbridge.core.reports.report_utils import (
+    _tex, _render_value, get_girder_entries,
+    STYLE_TWO_COL, STYLE_GIRDER_PROPERTIES, STYLE_STIFFENER_SUMMARY, STYLE_TRANSVERSE_SHEAR,
+    STYLE_FOUR_COL_PARAM, STYLE_SHEAR_CONN_CAP, STYLE_SHEAR_CONN_SPACE, STYLE_DECK_CHECK_4COL,
+    STYLE_REBAR_SUMMARY, STYLE_SECTION_CLASSIFICATION, STYLE_CAPACITY_CHECK,
+    STYLE_DEFLECTION_CHECK, STYLE_SERVICEABILITY, STYLE_DECK_FLEXURE_INTERIOR,
+    STYLE_OVERALL_SUMMARY, STYLE_VEHICULAR_LL, STYLE_BRACING_CONNECTION,
+    STYLE_BRACING_SLENDERNESS, STYLE_GIRDER_DCR_SUMMARY, STYLE_BOQ_TABLE,
+    STYLE_BRACING_CAPACITY
+)
 
 if TYPE_CHECKING:
     pass
@@ -380,13 +389,13 @@ def ch5_design_checks(checks_data, bridge, fig_paths=None) -> str:
         t58_block = r"""
 \vspace{1em}
 
-\begin{longtable}{|C{2.5cm}|C{3.5cm}|C{3.5cm}|>{\centering\arraybackslash}p{4.2cm}|C{1.8cm}|}
+\begin{longtable}{""" + STYLE_CAPACITY_CHECK + r"""}
 \caption{Intermediate Stiffener Checks} \\
 \hline
 \textbf{} & \textbf{Check} & \textbf{Required} & \textbf{Provided} & \textbf{Status} \\[6pt]
 \hline
 \endfirsthead
-\multicolumn{7}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
+\multicolumn{5}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
 \hline
 \textbf{} & \textbf{Check} & \textbf{Required} & \textbf{Provided} & \textbf{Status} \\[6pt]
 \hline
@@ -1100,13 +1109,13 @@ This section presents all structural design checks performed by OsdagBridge. For
 \label{sec:plate-girder}
 
 \vspace{1em}
-\begin{longtable}{|C{2.5cm}|L{8.0cm}|>{\centering\arraybackslash}p{5.0cm}|}
+\begin{longtable}{""" + STYLE_GIRDER_PROPERTIES + r"""}
 \caption{\textbf{Girder Section Properties (Final Optimized / User-selected)}} \\
 \hline
 \textbf{Girder} & \textbf{Property} & \textbf{Value} \\[6pt]
 \hline
 \endfirsthead
-\multicolumn{5}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
+\multicolumn{3}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
 \hline
 \textbf{Girder} & \textbf{Property} & \textbf{Value} \\[6pt]
 \hline
@@ -1119,13 +1128,13 @@ This section presents all structural design checks performed by OsdagBridge. For
 \end{longtable}
 
 \vspace{1em}
-\begin{longtable}{|C{2.5cm}|L{3cm}|C{3.5cm}|C{2.5cm}|>{\centering\arraybackslash}p{4.0cm}|}
+\begin{longtable}{""" + STYLE_SECTION_CLASSIFICATION + r"""}
 \caption{\textbf{Girder Section Classification}} \\
 \hline
 \textbf{} & \textbf{Element} & \textbf{Slenderness Ratio} & \textbf{Class Limit} & \textbf{Classification} \\[6pt]
 \hline
 \endfirsthead
-\multicolumn{7}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
+\multicolumn{5}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
 \hline
 \textbf{} & \textbf{Element} & \textbf{Slenderness Ratio} & \textbf{Class Limit} & \textbf{Classification} \\[6pt]
 \hline
@@ -1139,13 +1148,13 @@ This section presents all structural design checks performed by OsdagBridge. For
 \noindent\textit{Note: IS 800:2007 Table 2}
 
 \vspace{1em}
-\begin{longtable}{|C{2.5cm}|C{3.5cm}|C{3.5cm}|>{\centering\arraybackslash}p{4.2cm}|C{1.8cm}|}
+\begin{longtable}{""" + STYLE_CAPACITY_CHECK + r"""}
 \caption{\textbf{Moment Capacity Check}} \\
 \hline
 \textbf{} & \textbf{Parameter} & \textbf{Formula} & \textbf{Value} & \textbf{Status} \\[6pt]
 \hline
 \endfirsthead
-\multicolumn{7}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
+\multicolumn{5}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
 \hline
 \textbf{} & \textbf{Parameter} & \textbf{Formula} & \textbf{Value} & \textbf{Status} \\[6pt]
 \hline
@@ -1159,13 +1168,13 @@ This section presents all structural design checks performed by OsdagBridge. For
 \noindent\textit{Note: IRC 22 Cl. 603.3.1, IS 800 Cl. 8.2.1}
 
 \vspace{1em}
-\begin{longtable}{|C{2.5cm}|C{3.5cm}|C{3.5cm}|>{\centering\arraybackslash}p{4.2cm}|C{1.8cm}|}
+\begin{longtable}{""" + STYLE_CAPACITY_CHECK + r"""}
 \caption{\textbf{Shear Capacity Check}} \\
 \hline
 \textbf{} & \textbf{Parameter} & \textbf{Formula} & \textbf{Value} & \textbf{Status} \\[6pt]
 \hline
 \endfirsthead
-\multicolumn{7}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
+\multicolumn{5}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
 \hline
 \textbf{} & \textbf{Parameter} & \textbf{Formula} & \textbf{Value} & \textbf{Status} \\[6pt]
 \hline
@@ -1179,13 +1188,13 @@ This section presents all structural design checks performed by OsdagBridge. For
 \noindent\textit{Note: IS 800 Cl. 8.4, IRC 22 Cl. 603.3.3.2}
 
 \vspace{1em}
-\begin{longtable}{|C{2.5cm}|C{3.5cm}|C{3.5cm}|>{\centering\arraybackslash}p{4.2cm}|C{1.8cm}|}
+\begin{longtable}{""" + STYLE_CAPACITY_CHECK + r"""}
 \caption{\textbf{Interaction Checks (M-V and M-N)}} \\
 \hline
 \textbf{} & \textbf{Check} & \textbf{Condition} & \textbf{Value} & \textbf{Status} \\[6pt]
 \hline
 \endfirsthead
-\multicolumn{7}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
+\multicolumn{5}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
 \hline
 \textbf{} & \textbf{Check} & \textbf{Condition} & \textbf{Value} & \textbf{Status} \\[6pt]
 \hline
@@ -1199,7 +1208,7 @@ This section presents all structural design checks performed by OsdagBridge. For
 \noindent\textit{Note: IRC 22 Cl. 603.3.3.3}
 
 \vspace{1em}
-\begin{longtable}{|C{2.5cm}|C{3.5cm}|C{3.5cm}|>{\centering\arraybackslash}p{4.2cm}|C{1.8cm}|}
+\begin{longtable}{""" + STYLE_CAPACITY_CHECK + r"""}
 \caption{\textbf{Lateral Torsional Buckling Check -- Construction Stage}} \\
 \hline
 \textbf{} & \textbf{Parameter} & \textbf{Formula} & \textbf{Value} & \textbf{Status} \\[6pt]
@@ -1219,7 +1228,7 @@ This section presents all structural design checks performed by OsdagBridge. For
 \noindent\textit{Note: IRC 22 Cl. 603.3.3.1, IS 800 Cl. 8.2.2}
 
 \vspace{1em}
-\begin{longtable}{|C{2.5cm}|L{6.5cm}|>{\arraybackslash}p{6.5cm}|}
+\begin{longtable}{""" + STYLE_STIFFENER_SUMMARY + r"""}
 \caption{\textbf{Stiffener Design Summary}} \\
 \hline
 \textbf{Girder} & \textbf{Stiffener Type} & \textbf{Design Check / Details} \\[6pt]
@@ -1239,13 +1248,13 @@ This section presents all structural design checks performed by OsdagBridge. For
 """ + t58_block + r"""
 \vspace{1em}
 
-\begin{longtable}{|C{2.5cm}|L{3.5cm}|C{3.5cm}|>{\centering\arraybackslash}p{4.2cm}|C{1.8cm}|}
+\begin{longtable}{""" + STYLE_CAPACITY_CHECK + r"""}
 \caption{\textbf{End Panel Stiffener Checks}} \\
 \hline
 \textbf{} & \textbf{Check} & \textbf{Required} & \textbf{Provided} & \textbf{Status} \\[6pt]
 \hline
 \endfirsthead
-\multicolumn{7}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
+\multicolumn{5}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
 \hline
 \textbf{} & \textbf{Check} & \textbf{Required} & \textbf{Provided} & \textbf{Status} \\[6pt]
 \hline
@@ -1259,13 +1268,13 @@ This section presents all structural design checks performed by OsdagBridge. For
 \noindent\textit{Note: IS 800 Cl. 8.4.2.2}
 
 \vspace{1em}
-\begin{longtable}{|C{2.5cm}|L{3.5cm}|C{3.5cm}|>{\centering\arraybackslash}p{3.5cm}|C{2.5cm}|}
+\begin{longtable}{""" + STYLE_DEFLECTION_CHECK + r"""}
 \caption{\textbf{Serviceability -- Deflection Checks}} \\
 \hline
 \textbf{} & \textbf{Check} & \textbf{Allowable} & \textbf{Actual} & \textbf{Status} \\[6pt]
 \hline
 \endfirsthead
-\multicolumn{7}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
+\multicolumn{5}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
 \hline
 \textbf{} & \textbf{Check} & \textbf{Allowable} & \textbf{Actual} & \textbf{Status} \\[6pt]
 \hline
@@ -1279,13 +1288,13 @@ This section presents all structural design checks performed by OsdagBridge. For
 \noindent\textit{Note: IRC 22 Cl. 604.3.2}
 
 \vspace{1em}
-\begin{longtable}{|C{2.5cm}|L{3.5cm}|C{3.5cm}|>{\centering\arraybackslash}p{3.5cm}|C{2.5cm}|}
+\begin{longtable}{""" + STYLE_SERVICEABILITY + r"""}
 \caption{\textbf{Serviceability -- Maximum Stress Limitation}} \\
 \hline
 \textbf{} & \textbf{Element} & \textbf{Allowable Stress} & \textbf{Actual Stress} & \textbf{Status} \\[6pt]
 \hline
 \endfirsthead
-\multicolumn{7}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
+\multicolumn{5}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
 \hline
 \textbf{} & \textbf{Element} & \textbf{Allowable Stress} & \textbf{Actual Stress} & \textbf{Status} \\[6pt]
 \hline
@@ -1298,13 +1307,13 @@ This section presents all structural design checks performed by OsdagBridge. For
 \end{longtable}
 
 \vspace{1em}
-\begin{longtable}{|C{2.5cm}|C{3.5cm}|C{3.5cm}|>{\centering\arraybackslash}p{3.5cm}|C{2.5cm}|}
+\begin{longtable}{""" + STYLE_SERVICEABILITY + r"""}
 \caption{\textbf{Serviceability -- Fatigue Assessment}} \\
 \hline
 \textbf{} & \textbf{Stress Range, $\Delta\sigma$ (MPa)} & \textbf{Fatigue Limit, $f_{fd}$ (MPa)} & \textbf{Utilization Ratio} & \textbf{Status} \\[6pt]
 \hline
 \endfirsthead
-\multicolumn{7}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
+\multicolumn{5}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
 \hline
 \textbf{} & \textbf{Stress Range, $\Delta\sigma$ (MPa)} & \textbf{Fatigue Limit, $f_{fd}$ (MPa)} & \textbf{Utilization Ratio} & \textbf{Status} \\[6pt]
 \hline
@@ -1319,13 +1328,13 @@ This section presents all structural design checks performed by OsdagBridge. For
 
 \vspace{1em}
 \vspace{0.4em}
-\begin{longtable}{|C{1.6cm}|>{\centering\arraybackslash}p{3.6cm}|C{2.4cm}|C{2.0cm}|C{2.1cm}|C{1.7cm}|C{1.5cm}|}
+\begin{longtable}{""" + STYLE_GIRDER_DCR_SUMMARY + r"""}
 \caption{\textbf{Girder Design Summary (DCR / Utilization Ratio)}} \\
 \hline
 \textbf{Girder} & \textbf{Controlling LC / Combination} & \textbf{Controlling Check} & \textbf{Demand} & \textbf{Capacity} & \textbf{UR} & \textbf{Status} \\[6pt]
 \hline
 \endfirsthead
-\multicolumn{9}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
+\multicolumn{7}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
 \hline
 \textbf{Girder} & \textbf{Controlling LC / Combination} & \textbf{Controlling Check} & \textbf{Demand} & \textbf{Capacity} & \textbf{UR} & \textbf{Status} \\[6pt]
 \hline
@@ -1340,13 +1349,13 @@ This section presents all structural design checks performed by OsdagBridge. For
 
 \vspace{1em}
 
-\begin{longtable}{|L{3.6cm}|C{5.6cm}|>{\centering\arraybackslash}p{2.6cm}|L{3.0cm}|}
+\begin{longtable}{""" + STYLE_SHEAR_CONN_CAP + r"""}
 \caption{\textbf{Shear Connector Capacity}} \\
 \hline
 \textbf{Parameter} & \textbf{Formula} & \textbf{Value} & \textbf{Reference} \\[6pt]
 \hline
 \endfirsthead
-\multicolumn{6}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
+\multicolumn{4}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
 \hline
 \textbf{Parameter} & \textbf{Formula} & \textbf{Value} & \textbf{Reference} \\[6pt]
 \hline
@@ -1360,16 +1369,13 @@ This section presents all structural design checks performed by OsdagBridge. For
 
 \vspace{1em}
 
-\setlength\LTleft{0pt}
-\setlength\LTright{\fill}
-
-\begin{longtable}{|L{3.2cm}|>{\centering\arraybackslash}p{4.3cm}|>{\centering\arraybackslash}p{4.3cm}|C{2.0cm}|}
+\begin{longtable}{""" + STYLE_SHEAR_CONN_SPACE + r"""}
 \caption{\textbf{Shear Connector Spacing}} \\
 \hline
 \textbf{Criterion} & \textbf{Governing Spacing} & \textbf{Actual Spacing Provided} & \textbf{Status} \\[6pt]
 \hline
 \endfirsthead
-\multicolumn{6}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
+\multicolumn{4}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
 \hline
 \textbf{Criterion} & \textbf{Governing Spacing} & \textbf{Actual Spacing Provided} & \textbf{Status} \\[6pt]
 \hline
@@ -1383,7 +1389,7 @@ This section presents all structural design checks performed by OsdagBridge. For
 \noindent\textit{Note: IRC 22 Cl. 606.4, 606.9. Governing spacing $= \min(S_{L1}, S_{L2}, S_R)$.}
 
 \vspace{1em}
-\begin{longtable}{|L{5.3cm}|>{\arraybackslash}p{7.2cm}|C{2.0cm}|}
+\begin{longtable}{""" + STYLE_TRANSVERSE_SHEAR + r"""}
 \caption{\textbf{Transverse Shear and Detailing Checks}} \\
 \hline
 \textbf{Check} & \textbf{Value} & \textbf{Status} \\[6pt]
@@ -1410,7 +1416,7 @@ This section presents all structural design checks performed by OsdagBridge. For
 The reinforced concrete deck slab is designed per IRC~112:2011 (flexure, shear, crack width) and IRC~22:2014 (composite construction). Wheel loads are distributed using Pigeaud's method. The deck is checked for flexure in the transverse and longitudinal directions, punching shear, one-way (beam) shear, crack width, and reinforcement detailing.
 
 \vspace{1em}
-\begin{longtable}{|L{5.5cm}|p{10.0cm}|}
+\begin{longtable}{""" + STYLE_TWO_COL + r"""}
 \caption{\textbf{Deck Slab --- Loading and Geometry}} \\
 \hline
 \textbf{Parameter} & \textbf{Design Value / Specification} \\[6pt]
@@ -1448,13 +1454,13 @@ The reinforced concrete deck slab is designed per IRC~112:2011 (flexure, shear, 
 \end{longtable}
 
 \vspace{1em}
-\begin{longtable}{|C{3.0cm}|C{3.5cm}|C{3.0cm}|>{\centering\arraybackslash}p{4.2cm}|C{1.8cm}|}
+\begin{longtable}{""" + STYLE_DECK_FLEXURE_INTERIOR + r"""}
 \caption{\textbf{Deck Slab --- Flexure Check: Interior Panel (Pigeaud's Method)}} \\
 \hline
 \textbf{Location} & \textbf{Parameter} & \textbf{Formula / Reference} & \textbf{Value} & \textbf{Status} \\[6pt]
 \hline
 \endfirsthead
-\multicolumn{7}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
+\multicolumn{5}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
 \hline
 \textbf{Location} & \textbf{Parameter} & \textbf{Formula / Reference} & \textbf{Value} & \textbf{Status} \\[6pt]
 \hline
@@ -1483,13 +1489,13 @@ The reinforced concrete deck slab is designed per IRC~112:2011 (flexure, shear, 
 \noindent\textit{Note: IRC 112 Cl. 12.2. Distribution (longitudinal) reinforcement designed for 20\% of main steel moment (IRC 21 Cl. 305.18).}
 
 \vspace{1em}
-\begin{longtable}{|L{5.5cm}|C{3.5cm}|>{\centering\arraybackslash}p{4.5cm}|C{2cm}|}
+\begin{longtable}{""" + STYLE_DECK_CHECK_4COL + r"""}
 \caption{\textbf{Deck Slab --- Cantilever Overhang Flexure Check}} \\
 \hline
 \textbf{Parameter} & \textbf{Formula} & \textbf{Value} & \textbf{Status} \\[6pt]
 \hline
 \endfirsthead
-\multicolumn{6}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
+\multicolumn{4}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
 \hline
 \textbf{Parameter} & \textbf{Formula} & \textbf{Value} & \textbf{Status} \\[6pt]
 \hline
@@ -1514,13 +1520,13 @@ Moment Capacity (top steel), $M_{Rd,oh}$ & IRC 112 Cl. 12.2 & """ + _dkoh(KEY_DD
 \noindent\textit{Note: IRC 6 Cl. 206.4 crash barrier loads applied at kerb face; IRC 112 Cl. 12.2 flexure.}
 
 \vspace{1em}
-\begin{longtable}{|L{5.5cm}|C{3.5cm}|>{\centering\arraybackslash}p{4.5cm}|C{2cm}|}
+\begin{longtable}{""" + STYLE_DECK_CHECK_4COL + r"""}
 \caption{\textbf{Deck Slab --- Punching Shear Check (IRC~112 Cl.~10.4.6)}} \\
 \hline
 \textbf{Parameter} & \textbf{Formula / Reference} & \textbf{Value} & \textbf{Status} \\[6pt]
 \hline
 \endfirsthead
-\multicolumn{6}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
+\multicolumn{4}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
 \hline
 \textbf{Parameter} & \textbf{Formula / Reference} & \textbf{Value} & \textbf{Status} \\[6pt]
 \hline
@@ -1548,7 +1554,7 @@ Punching Shear Check & $v_{Ed} \leq v_{Rd,c}$ & """ + (f"{_dkv(KEY_DD_PUNCH_VED)
 
 \vspace{1em}
 \clearpage
-\begin{longtable}{|L{7cm}|>{\arraybackslash}p{8.5cm}|}
+\begin{longtable}{""" + STYLE_TWO_COL + r"""}
 \caption{\textbf{Crack Width Check (Deck Slab)}} \\
 \hline
 \textbf{Parameter} & \textbf{Value / Reference} \\[6pt]
@@ -1576,13 +1582,13 @@ Punching Shear Check & $v_{Ed} \leq v_{Rd,c}$ & """ + (f"{_dkv(KEY_DD_PUNCH_VED)
 \end{longtable}
 
 \vspace{1em}
-\begin{longtable}{|L{5.5cm}|C{3.5cm}|>{\centering\arraybackslash}p{4.5cm}|C{2cm}|}
+\begin{longtable}{""" + STYLE_DECK_CHECK_4COL + r"""}
 \caption{\textbf{One-Way (Beam) Shear Check (Deck Slab)}} \\
 \hline
 \textbf{Parameter} & \textbf{Formula / Reference} & \textbf{Value} & \textbf{Status} \\[6pt]
 \hline
 \endfirsthead
-\multicolumn{6}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
+\multicolumn{4}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
 \hline
 \textbf{Parameter} & \textbf{Formula / Reference} & \textbf{Value} & \textbf{Status} \\[6pt]
 \hline
@@ -1607,13 +1613,13 @@ One-Way Shear Check & $V_{Ed} \leq V_{Rd,c}$ & """ + (f"{_dkv(KEY_DD_SHEAR_VED) 
 \noindent\textit{Note: IRC 112 Cl. 10.3.2. Shear reinforcement not provided in deck slabs; capacity relies on concrete and main reinforcement.}
 
 \vspace{1em}
-\begin{longtable}{|L{5.5cm}|>{\centering\arraybackslash}p{4.1cm}|>{\centering\arraybackslash}p{4.1cm}|C{1.8cm}|}
+\begin{longtable}{""" + STYLE_REBAR_SUMMARY + r"""}
 \caption{\textbf{Reinforcement Detailing Summary (Deck Slab)}} \\
 \hline
 \textbf{Parameter} & \textbf{Required / Limit} & \textbf{Provided} & \textbf{Status} \\[6pt]
 \hline
 \endfirsthead
-\multicolumn{6}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
+\multicolumn{4}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
 \hline
 \textbf{Parameter} & \textbf{Required / Limit} & \textbf{Provided} & \textbf{Status} \\[6pt]
 \hline
@@ -1658,17 +1664,14 @@ Cross bracing between adjacent plate girders provides lateral stability during c
 
 \vspace{0.4em}
 \noindent
-\setlength{\tabcolsep}{4pt}
-\setlength\LTleft{0pt}
-\setlength\LTright{\fill}
 
-\begin{longtable}{|C{2.0cm}|L{2.0cm}|L{2.2cm}|C{2.5cm}|C{2.0cm}|C{2.0cm}|}
+\begin{longtable}{""" + STYLE_BRACING_CONNECTION + r"""}
 \caption{\textbf{Cross Bracing --- Connection and Section Properties}} \\
 \hline
 \textbf{Panel} & \textbf{Member} & \textbf{Connection} & \textbf{Section} & \textbf{$A_g$ (mm²)} & \textbf{$r_{min}$ (mm)} \\[6pt]
 \hline
 \endfirsthead
-\multicolumn{8}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
+\multicolumn{6}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
 \hline
 \textbf{Panel} & \textbf{Member} & \textbf{Connection} & \textbf{Section} & \textbf{$A_g$ (mm²)} & \textbf{$r_{min}$ (mm)} \\[6pt]
 \hline
@@ -1682,13 +1685,13 @@ Cross bracing between adjacent plate girders provides lateral stability during c
 \noindent\textit{Note: $A_g$ = gross cross-sectional area; $r_{min}$ = minimum radius of gyration.}
 
 \vspace{1em}
-\begin{longtable}{|C{2.2cm}|L{2.2cm}|L{2.5cm}|C{2.5cm}|C{2.5cm}|>{\centering\arraybackslash}p{3.6cm}|}
+\begin{longtable}{""" + STYLE_BRACING_SLENDERNESS + r"""}
 \caption{\textbf{Cross Bracing --- Slenderness Ratio Check (IS~800 Cl.~3.8 )}} \\
 \hline
 \textbf{Panel} & \textbf{Member} & \textbf{Nature} & \textbf{Eff.\ Length $KL$ (mm)} & \textbf{$KL/r$} & \textbf{Limit / Status} \\[6pt]
 \hline
 \endfirsthead
-\multicolumn{8}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
+\multicolumn{6}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
 \hline
 \textbf{Panel} & \textbf{Member} & \textbf{Nature} & \textbf{Eff.\ Length $KL$ (mm)} & \textbf{$KL/r$} & \textbf{Limit / Status} \\[6pt]
 \hline
@@ -1702,13 +1705,13 @@ Cross bracing between adjacent plate girders provides lateral stability during c
 \noindent\textit{Note:  3. Limit = 250 for compression members, 400 for tension members. $K = 1.0$ for members with both ends pinned.}
 
 \vspace{1em}
-\begin{longtable}{|C{2.0cm}|L{1.8cm}|C{2.2cm}|C{3.0cm}|C{1.8cm}|C{1.8cm}|C{1.2cm}|C{1.8cm}|}
+\begin{longtable}{""" + STYLE_BRACING_CAPACITY + r"""}
 \caption{\textbf{Cross Bracing Design --- Capacity Summary}} \\
 \hline
 \textbf{Panel} & \textbf{Member} & \textbf{Section} & \textbf{Governing LC} & \textbf{Demand (kN)} & \textbf{Capacity (kN)} & \textbf{UR} & \textbf{Status} \\[6pt]
 \hline
 \endfirsthead
-\multicolumn{10}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
+\multicolumn{8}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
 \hline
 \textbf{Panel} & \textbf{Member} & \textbf{Section} & \textbf{Governing LC} & \textbf{Demand (kN)} & \textbf{Capacity (kN)} & \textbf{UR} & \textbf{Status} \\[6pt]
 \hline
@@ -1732,17 +1735,14 @@ End diaphragms at the supports transfer transverse loads to the bearings, restra
 
 \vspace{0.4em}
 \noindent
-\setlength{\tabcolsep}{4pt}
-\setlength{\LTleft}{0pt}
-\setlength{\LTright}{\fill}
 
-\begin{longtable}{|C{2.0cm}|L{2.0cm}|L{2.2cm}|C{2.5cm}|C{2.0cm}|C{2.0cm}|}
+\begin{longtable}{""" + STYLE_BRACING_CONNECTION + r"""}
 \caption{\textbf{End Diaphragm --- Connection and Section Properties}} \\
 \hline
 \textbf{Panel} & \textbf{Member} & \textbf{Connection} & \textbf{Section} & \textbf{$A_g$ (mm²)} & \textbf{$r_{min}$ (mm)} \\[6pt]
 \hline
 \endfirsthead
-\multicolumn{8}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
+\multicolumn{6}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
 \hline
 \textbf{Panel} & \textbf{Member} & \textbf{Connection} & \textbf{Section} & \textbf{$A_g$ (mm²)} & \textbf{$r_{min}$ (mm)} \\[6pt]
 \hline
@@ -1756,13 +1756,13 @@ End diaphragms at the supports transfer transverse loads to the bearings, restra
 \noindent\textit{Note: $A_g$ = gross cross-sectional area; $r_{min}$ = minimum radius of gyration.}
 
 \vspace{1em}
-\begin{longtable}{|C{2.2cm}|L{2.2cm}|L{2.5cm}|C{2.5cm}|C{2.5cm}|>{\centering\arraybackslash}p{3.6cm}|}
+\begin{longtable}{""" + STYLE_BRACING_SLENDERNESS + r"""}
 \caption{\textbf{End Diaphragm --- Slenderness Ratio Check (IS~800 Cl.~3.8 )}} \\
 \hline
 \textbf{Panel} & \textbf{Member} & \textbf{Nature} & \textbf{Eff.\ Length $KL$ (mm)} & \textbf{$KL/r$} & \textbf{Limit / Status} \\[6pt]
 \hline
 \endfirsthead
-\multicolumn{8}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
+\multicolumn{6}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
 \hline
 \textbf{Panel} & \textbf{Member} & \textbf{Nature} & \textbf{Eff.\ Length $KL$ (mm)} & \textbf{$KL/r$} & \textbf{Limit / Status} \\[6pt]
 \hline
@@ -1777,13 +1777,13 @@ End diaphragms at the supports transfer transverse loads to the bearings, restra
 
 \vspace{1em}
 
-\begin{longtable}{|C{2.0cm}|L{1.8cm}|C{2.2cm}|C{3.0cm}|C{1.8cm}|C{1.8cm}|C{1.2cm}|C{1.8cm}|}
+\begin{longtable}{""" + STYLE_BRACING_CAPACITY + r"""}
 \caption{\textbf{End Diaphragm Design --- Capacity Summary}} \\
 \hline
 \textbf{Panel} & \textbf{Member} & \textbf{Section} & \textbf{Governing LC} & \textbf{Demand (kN)} & \textbf{Capacity (kN)} & \textbf{UR} & \textbf{Status} \\[6pt]
 \hline
 \endfirsthead
-\multicolumn{10}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
+\multicolumn{8}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
 \hline
 \textbf{Panel} & \textbf{Member} & \textbf{Section} & \textbf{Governing LC} & \textbf{Demand (kN)} & \textbf{Capacity (kN)} & \textbf{UR} & \textbf{Status} \\[6pt]
 \hline
@@ -1803,13 +1803,13 @@ End diaphragms at the supports transfer transverse loads to the bearings, restra
 """ + (ur_section if 'ur_section' in locals() else "") + r"""
 
 \vspace{1em}
-\begin{longtable}{|C{3.4cm}|L{4.5cm}|C{2.3cm}|C{2.3cm}|>{\centering\arraybackslash}p{1.6cm}|}
+\begin{longtable}{""" + STYLE_OVERALL_SUMMARY + r"""}
 \caption{\textbf{Overall Design Check Summary --- All Members}} \\
 \hline
 \textbf{Member / Check} & \textbf{Governing Load Combo} & \textbf{Demand} & \textbf{Capacity} & \textbf{UR} \\[6pt]
 \hline
 \endfirsthead
-\multicolumn{7}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
+\multicolumn{5}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
 \hline
 \textbf{Member / Check} & \textbf{Governing Load Combo} & \textbf{Demand} & \textbf{Capacity} & \textbf{UR} \\[6pt]
 \hline

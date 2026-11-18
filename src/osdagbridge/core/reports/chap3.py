@@ -61,7 +61,13 @@ from osdagbridge.core.utils.common import (
 )
 
 from osdagbridge.core.reports.report_utils import _tex, _render_value
+from osdagbridge.core.reports.styles import (
+    STYLE_TWO_COL, STYLE_VEHICULAR_LL, STYLE_FOUR_COL_PARAM, compute_colspec
+)
 from osdagbridge.core.utils.codes.irc6_2017 import IRC6_2017
+
+STYLE_LOAD_COMBINATIONS = compute_colspec([('C', 0.22), ('p', 0.78)])
+
 
 
 def ch3_loads(input_dict):
@@ -305,7 +311,7 @@ def ch3_loads(input_dict):
 This section summarizes all applied loads and load combinations considered for the structural analysis and design of the bridge superstructure in accordance with IRC 6.
 
 \vspace{1em}
-\begin{longtable}{|L{5.5cm}|p{10.0cm}|}
+\begin{longtable}{""" + STYLE_TWO_COL + r"""}
 \caption{\textbf{Dead Load -- Self Weight}} \\
 \hline
 \textbf{Parameter} & \textbf{Value / Specification} \\[6pt]
@@ -329,7 +335,7 @@ This section summarizes all applied loads and load combinations considered for t
 \end{longtable}
 
 \vspace{1em}
-\begin{longtable}{|L{5.5cm}|p{10.0cm}|}
+\begin{longtable}{""" + STYLE_TWO_COL + r"""}
 \caption{\textbf{Dead Load for Surfacing (DW)}} \\
 \hline
 \textbf{Parameter} & \textbf{Value / Specification} \\[6pt]
@@ -353,7 +359,7 @@ This section summarizes all applied loads and load combinations considered for t
 \end{longtable}
 
 \vspace{1em}
-\begin{longtable}{|L{4.2cm}|C{2.3cm}|C{2.3cm}|C{2.3cm}|C{2.3cm}|p{2.6cm}|}
+\begin{longtable}{""" + STYLE_VEHICULAR_LL + r"""}
 \caption{\textbf{Vehicular Live Loads (LL) --- per IRC 6}} \\
 \hline
 \textbf{Vehicle Class / Model} & \textbf{Gross Load (kN)} & \textbf{Impact Factor ($1+i$)} & \textbf{Braking Force (kN)} & \textbf{Centrifugal Force (kN)} & \textbf{Code Reference} \\[6pt]
@@ -372,7 +378,7 @@ This section summarizes all applied loads and load combinations considered for t
 \end{longtable}
 
 \vspace{1em}
-\begin{longtable}{|L{6.0cm}|C{3.0cm}|C{2.5cm}|p{4.5cm}|}
+\begin{longtable}{""" + STYLE_FOUR_COL_PARAM + r"""}
 \caption{\textbf{Footpath Live Load --- per IRC 6}} \\
 \hline
 \textbf{Parameter} & \textbf{Design Value} & \textbf{Unit} & \textbf{Code Reference} \\[6pt]
@@ -391,7 +397,7 @@ This section summarizes all applied loads and load combinations considered for t
 \end{longtable}
 
 \vspace{1em}
-\begin{longtable}{|L{5.5cm}|p{10.0cm}|}
+\begin{longtable}{""" + STYLE_TWO_COL + r"""}
 \caption{\textbf{Wind Load (WL) --- per IRC 6}} \\
 \hline
 \textbf{Parameter} & \textbf{Design Value} \\[6pt]
@@ -425,7 +431,7 @@ This section summarizes all applied loads and load combinations considered for t
 \end{longtable}
 
 \vspace{1em}
-\begin{longtable}{|L{5.5cm}|p{10.0cm}|}
+\begin{longtable}{""" + STYLE_TWO_COL + r"""}
 \caption{\textbf{Earthquake Load (EL) --- per IRC 6}} \\
 \hline
 \textbf{Parameter} & \textbf{Design Value} \\[6pt]
@@ -461,7 +467,7 @@ This section summarizes all applied loads and load combinations considered for t
 \end{longtable}
 
 \vspace{1em}
-\begin{longtable}{|L{5.5cm}|p{10.0cm}|}
+\begin{longtable}{""" + STYLE_TWO_COL + r"""}
 \caption{\textbf{Temperature Load (TL) --- per IRC 6}} \\
 \hline
 \textbf{Parameter} & \textbf{Design Value} \\[6pt]
@@ -487,7 +493,7 @@ This section summarizes all applied loads and load combinations considered for t
 \end{longtable}
 
 \vspace{1em}
-\begin{longtable}{|C{3.0cm}|p{12.5cm}|}
+\begin{longtable}{""" + STYLE_LOAD_COMBINATIONS + r"""}
 \caption{\textbf{Load Combinations}} \\
 \hline
 \textbf{Combination ID} & \textbf{Load Cases} \\[6pt]
