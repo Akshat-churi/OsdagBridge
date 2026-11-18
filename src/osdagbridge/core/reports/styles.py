@@ -47,7 +47,7 @@ STYLE_STIFFENER_SUMMARY = compute_colspec([('C', 0.18), ('L', 0.41), ('p', 0.41)
 STYLE_TRANSVERSE_SHEAR = compute_colspec([('L', 0.35), ('p', 0.45), ('C', 0.20)])
 
 # 4-column tables (e.g. Footpath Live Load, Shear Connectors, Deck Overhang/Punching)
-STYLE_FOUR_COL_PARAM = compute_colspec([('L', 0.35), ('C', 0.20), ('C', 0.15), ('p', 0.30)])
+STYLE_FOUR_COL_PARAM = compute_colspec([('L', 0.38), ('C', 0.18), ('C', 0.16), ('p', 0.28)])
 STYLE_SHEAR_CONN_CAP = compute_colspec([('L', 0.26), ('C', 0.34), ('C', 0.20), ('L', 0.20)])
 STYLE_SHEAR_CONN_SPACE = compute_colspec([('L', 0.25), ('C', 0.30), ('C', 0.30), ('C', 0.15)])
 STYLE_DECK_CHECK_4COL = compute_colspec([('L', 0.35), ('C', 0.22), ('C', 0.25), ('C', 0.18)])
@@ -68,7 +68,7 @@ STYLE_DECK_FLEXURE_INTERIOR = compute_colspec([('C', 0.16), ('C', 0.22), ('C', 0
 STYLE_OVERALL_SUMMARY = compute_colspec([('C', 0.22), ('L', 0.28), ('C', 0.20), ('C', 0.20), ('C', 0.10)])
 
 # 6-column tables (e.g. Live Loads Table 3.3, Cross Bracing / Diaphragm Connections & Slenderness)
-STYLE_VEHICULAR_LL = compute_colspec([('L', 0.24), ('C', 0.14), ('C', 0.16), ('C', 0.16), ('C', 0.16), ('p', 0.14)])
+STYLE_VEHICULAR_LL = compute_colspec([('L', 0.22), ('C', 0.13), ('C', 0.14), ('C', 0.14), ('C', 0.21), ('p', 0.16)])
 STYLE_BRACING_CONNECTION = compute_colspec([('C', 0.14), ('L', 0.18), ('L', 0.18), ('C', 0.20), ('C', 0.15), ('C', 0.15)])
 STYLE_BRACING_SLENDERNESS = compute_colspec([('C', 0.14), ('L', 0.16), ('L', 0.16), ('C', 0.18), ('C', 0.16), ('C', 0.20)])
 

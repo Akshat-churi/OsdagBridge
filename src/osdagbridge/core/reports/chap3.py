@@ -95,22 +95,30 @@ def ch3_loads(input_dict):
     # Table 3.3: Vehicular Live Loads (LL) --- per IRC 6
     # Active vehicles populated strictly as per UI selection in Loading tab
     # ─────────────────────────────────────────────────────────────────────────
+    def _is_truthy(val):
+        if val is None:
+            return False
+        if isinstance(val, bool):
+            return val
+        s = str(val).strip().lower()
+        return s in ("true", "1", "yes", "checked", "on")
+
     active_vehicles = []
-    if input_dict.get(KEY_LL_IRC_CLASS_A):
+    if _is_truthy(input_dict.get(KEY_LL_IRC_CLASS_A)):
         active_vehicles.append(('Class A', 554.0, 'cl_208_2', 114.0, 'IRC 6 Cl. 204.1'))
-    if input_dict.get(KEY_LL_IRC_70R_WHEELED):
+    if _is_truthy(input_dict.get(KEY_LL_IRC_70R_WHEELED)):
         active_vehicles.append(('Class 70R (Wheeled)', 1000.0, 'cl_208_3', 200.0, 'IRC 6 Cl. 204.3'))
-    if input_dict.get(KEY_LL_IRC_70R_TRACKED):
+    if _is_truthy(input_dict.get(KEY_LL_IRC_70R_TRACKED)):
         active_vehicles.append(('Class 70R (Tracked)', 700.0, 'cl_208_3', 140.0, 'IRC 6 Cl. 204.2'))
-    if input_dict.get(KEY_LL_IRC_AA_WHEELED):
+    if _is_truthy(input_dict.get(KEY_LL_IRC_AA_WHEELED)):
         active_vehicles.append(('Class AA (Wheeled)', 400.0, 'cl_208_3', 80.0, 'IRC 6 Cl. 204.4'))
-    if input_dict.get(KEY_LL_IRC_AA_TRACKED):
+    if _is_truthy(input_dict.get(KEY_LL_IRC_AA_TRACKED)):
         active_vehicles.append(('Class AA (Tracked)', 700.0, 'cl_208_3', 140.0, 'IRC 6 Cl. 204.4'))
-    if input_dict.get(KEY_LL_IRC_70R_BOGIE):
+    if _is_truthy(input_dict.get(KEY_LL_IRC_70R_BOGIE)):
         active_vehicles.append(('Class 70R (Bogie)', 400.0, 'cl_208_3', 80.0, 'IRC 6 Cl. 204.3'))
-    if input_dict.get(KEY_LL_IRC_CLASS_SV):
+    if _is_truthy(input_dict.get(KEY_LL_IRC_CLASS_SV)):
         active_vehicles.append(('Class SV (Special Vehicle)', 3850.0, None, 385.0, 'IRC 6 Annex B'))
-    if input_dict.get(KEY_LL_IRC_CLASS_FATIGUE):
+    if _is_truthy(input_dict.get(KEY_LL_IRC_CLASS_FATIGUE)):
         active_vehicles.append(('Class Fatigue Vehicle', 400.0, None, None, 'IRC 6 Cl. 219'))
 
     custom = input_dict.get(KEY_LL_CUSTOM_VEHICLES)
@@ -127,6 +135,15 @@ def ch3_loads(input_dict):
             ('Class 70R (Wheeled)', 1000.0, 'cl_208_3', 200.0, 'IRC 6 Cl. 204.3'),
         ]
 
+    # Horizontal alignment check for centrifugal force
+    radius_val = input_dict.get("geometry.radius_of_curvature") or input_dict.get("horizontal_curve_radius")
+    is_curved = False
+    if radius_val:
+        try:
+            is_curved = float(radius_val) > 0
+        except Exception:
+            is_curved = False
+
     ll_rows = []
     for vname, wt, im_func, brk, ref in active_vehicles:
         wt_str = f"{wt:.1f}" if isinstance(wt, (int, float)) else str(wt)
@@ -140,7 +157,7 @@ def ch3_loads(input_dict):
             im_str = "1.000"
 
         brk_str = f"{brk:.1f}" if isinstance(brk, (int, float)) else ("--" if brk is None else str(brk))
-        cf_str = "0.00"  # Straight alignment per default geometry
+        cf_str = "0.00" if is_curved else "N/A (straight span)"
 
         ll_rows.append(
             f"{_tex(vname)} & {wt_str} & {im_str} & {brk_str} & {cf_str} & {_tex(ref)} \\\\[6pt]\n\\hline"
@@ -168,14 +185,15 @@ def ch3_loads(input_dict):
     has_fp = input_dict.get(KEY_FOOTPATH) or input_dict.get(KEY_TS_NO_OF_FOOTPATHS)
     fp_prov_str = "Present (Both Sides)" if str(has_fp).strip() not in ("0", "None", "False", "no") else "None"
 
+    fp_thickness = _render_value(input_dict, KEY_TS_FOOTPATH_THICKNESS)
     fp_rows = [
-        f"Footpath Provision & {_tex(fp_prov_str)} & -- & IRC 5 Cl. 106 \\\\[6pt]\n\\hline",
-        f"Clear Footpath Width, $w_{{fp}}$ & {fp_w_float:.2f} & m & IRC 5 Cl. 106.3 \\\\[6pt]\n\\hline",
-        f"Footpath Slab Thickness & {_render_value(input_dict, KEY_TS_FOOTPATH_THICKNESS, ' mm')} & mm & IRC 22 Cl. 602 \\\\[6pt]\n\\hline",
-        f"Pedestrian Live Load Intensity, $p$ & {p_intensity:.3f} & kN/m\\textsuperscript{{2}} & IRC 6 Cl. 206.1 \\\\[6pt]\n\\hline",
-        f"Linear Pedestrian Load ($w_{{fp}} \\times p$) & {w_lin:.2f} & kN/m & IRC 6 Cl. 206.1 \\\\[6pt]\n\\hline",
-        f"Horizontal Kerb / Barrier Load & 5.00 & kN/m & IRC 6 Cl. 206.3 \\\\[6pt]\n\\hline",
-        f"Pedestrian Parapet / Handrail Load & 1.00 & kN/m & IRC 6 Cl. 206.2 \\\\[6pt]\n\\hline",
+        f"Footpath Provision & {_tex(fp_prov_str)} & -- & IRC 5 Cl. 106 \\\\*[6pt]\n\\hline",
+        f"Clear Footpath Width, $w_{{fp}}$ & {fp_w_float:.2f} & m & IRC 5 Cl. 106.3 \\\\*[6pt]\n\\hline",
+        f"Footpath Slab Thickness & {fp_thickness} & mm & IRC 22 Cl. 602 \\\\*[6pt]\n\\hline",
+        f"Pedestrian Live Load Intensity, $p$ & {p_intensity:.3f} & kN/m\\textsuperscript{{2}} & IRC 6 Cl. 206.1 \\\\*[6pt]\n\\hline",
+        f"Linear Pedestrian Load ($w_{{fp}} \\times p$) & {w_lin:.2f} & kN/m & IRC 6 Cl. 206.1 \\\\*[6pt]\n\\hline",
+        f"Horizontal Kerb / Barrier Load & 5.00 & kN/m & IRC 6 Cl. 206.3 \\\\*[6pt]\n\\hline",
+        f"Pedestrian Parapet / Handrail Load & 1.00 & kN/m & IRC 6 Cl. 206.2 \\[6pt]\n\\hline",
     ]
     fp_table_rows = "\n".join(fp_rows)
 
