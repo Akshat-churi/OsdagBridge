@@ -62,6 +62,7 @@ from osdagbridge.core.utils.common import (
     KEY_TS_DECK_OVERHANG,
     KEY_TS_DECK_THICKNESS,
     KEY_TS_FOOTPATH_WIDTH,
+    KEY_TS_NO_OF_FOOTPATHS,
     KEY_TS_GIRDER_SPACING,
     KEY_TS_NO_OF_GIRDERS,
     KEY_TS_OVERALL_WIDTH,
@@ -200,7 +201,7 @@ Where the user has modified additional inputs, those values are reported here. W
 \hline
 \textnormal{Deck Thickness (mm)} & """ + (_render_value(input_dict, KEY_TS_DECK_THICKNESS, ' mm')) + r""" \\[6pt]
 \hline
-\textnormal{Footpath Width (m)} & """ + (_render_value(input_dict, KEY_TS_FOOTPATH_WIDTH, ' m')) + r""" (IRC 5 Cl. 104.3.6 min: 1.5 m) \\[6pt]
+\textnormal{Footpath Width} & """ + (r"-- (No Footpath)" if str(input_dict.get(KEY_FOOTPATH) or input_dict.get(KEY_TS_NO_OF_FOOTPATHS)).strip() in ("0", "None", "False", "no") else (_render_value(input_dict, KEY_TS_FOOTPATH_WIDTH, ' m') + r" (IRC 5 Cl. 104.3.6 min: 1.5 m)")) + r""" \\[6pt]
 \hline
 \textnormal{No. of Traffic Lanes} & """ + (_render_value(input_dict, KEY_WC_LD_LANE_TABLE_COUNT)) + r""" (per IRC 5 Cl. 104.3.1) \\[6pt]
 \hline
@@ -265,20 +266,33 @@ def _girder_tables(input_dict, n_girders):
         )
     ]
 
+    def _to_mm(val):
+        if val is None or val == "":
+            return "--"
+        try:
+            f = float(val)
+            if f <= 15.0:
+                f *= 1000.0
+            return f"{f:.1f}" if f % 1 != 0 else f"{int(f)}"
+        except Exception:
+            return str(val)
+
     # Helper: one girder-dimension row
     def _dim_row(g_lbl, i):
+        d = _to_mm(input_dict.get(f"{KEY_MP_GIRDER_DEPTH}.G{i}.M1"))
+        tw = _to_mm(input_dict.get(f"{KEY_MP_GIRDER_WEB_THICKNESS}.G{i}.M1"))
+        tf_w = _to_mm(input_dict.get(f"{KEY_MP_GIRDER_TOP_FLANGE_WIDTH}.G{i}.M1"))
+        tf_t = _to_mm(input_dict.get(f"{KEY_MP_GIRDER_TOP_FLANGE_THICKNESS}.G{i}.M1"))
+        bf_w = _to_mm(input_dict.get(f"{KEY_MP_GIRDER_BOTTOM_FLANGE_WIDTH}.G{i}.M1"))
+        bf_t = _to_mm(input_dict.get(f"{KEY_MP_GIRDER_BOTTOM_FLANGE_THICKNESS}.G{i}.M1"))
         return (g_lbl + r""" & """
-                + (_render_value(input_dict, f"{KEY_MP_GIRDER_DEPTH}.G{i}.M1", ' mm'))
+                + d
                 + r""" & """
-                + (_render_value(input_dict, f"{KEY_MP_GIRDER_WEB_THICKNESS}.G{i}.M1", ' mm'))
+                + tw
                 + r""" & """
-                + (_render_value(input_dict, f"{KEY_MP_GIRDER_TOP_FLANGE_WIDTH}.G{i}.M1", ' mm'))
-                + ', '
-                + (_render_value(input_dict, f"{KEY_MP_GIRDER_TOP_FLANGE_THICKNESS}.G{i}.M1", ' mm'))
+                + f"{tf_w} $\\times$ {tf_t}"
                 + r""" & """
-                + (_render_value(input_dict, f"{KEY_MP_GIRDER_BOTTOM_FLANGE_WIDTH}.G{i}.M1", ' mm'))
-                + ', '
-                + (_render_value(input_dict, f"{KEY_MP_GIRDER_BOTTOM_FLANGE_THICKNESS}.G{i}.M1", ' mm'))
+                + f"{bf_w} $\\times$ {bf_t}"
                 + r""" \\[8pt]
 \hline
 """)
@@ -357,12 +371,12 @@ def _girder_tables(input_dict, n_girders):
 \begin{longtable}{""" + STYLE_GIRDER_DIMENSIONS + r"""}
 \caption{\textbf{Girder Section Dimensions}} \\
 \hline
-\textbf{Girder} & \textbf{Total Depth, D (mm)} & \textbf{Web, $t_w$ (mm)} & \textbf{Top Flange (b\textsubscript{tf}, t\textsubscript{tf}) mm} & \textbf{Bottom Flange (b\textsubscript{bf}, t\textsubscript{bf}) mm} \\[6pt]
+\textbf{Girder} & \textbf{Total Depth, D (mm)} & \textbf{Web, $t_w$ (mm)} & \textbf{Top Flange ($b_{tf} \times t_{tf}$) mm} & \textbf{Bottom Flange ($b_{bf} \times t_{bf}$) mm} \\[6pt]
 \hline
 \endfirsthead
 \multicolumn{5}{c}{{\footnotesize\textit{\tablename\ \thetable{} -- Continued from previous page}}} \\[4pt]
 \hline
-\textbf{Girder} & \textbf{Total Depth, D (mm)} & \textbf{Web, $t_w$ (mm)} & \textbf{Top Flange (b\textsubscript{tf}, t\textsubscript{tf}) mm} & \textbf{Bottom Flange (b\textsubscript{bf}, t\textsubscript{bf}) mm} \\[6pt]
+\textbf{Girder} & \textbf{Total Depth, D (mm)} & \textbf{Web, $t_w$ (mm)} & \textbf{Top Flange ($b_{tf} \times t_{tf}$) mm} & \textbf{Bottom Flange ($b_{bf} \times t_{bf}$) mm} \\[6pt]
 \hline
 \endhead
 \hline

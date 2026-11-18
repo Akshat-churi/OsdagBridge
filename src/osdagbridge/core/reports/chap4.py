@@ -134,7 +134,7 @@ A grillage model was used for structural analysis. The deck is idealized as a gr
 """ + merged_body + r"""
 
 \hline
-\endlongtable
+\end{longtable}
 \endgroup
 
 \vspace{1em}

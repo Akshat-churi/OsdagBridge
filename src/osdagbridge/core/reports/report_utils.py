@@ -13,9 +13,11 @@ def _tex(value):
     s = str(value) if value is not None else ''
     if not s:
         return r''
-    # Normalise non-ASCII glyphs from section designations (e.g. "∠ 100 ⅹ 100ⅹ 10")
+    # Normalise non-ASCII glyphs from section designations and check names
     # that pdflatex cannot render.
-    for uni, ascii_ in [('∠', 'L'), ('ⅹ', 'x'), ('×', 'x')]:
+    for uni, ascii_ in [('∠', 'L'), ('ⅹ', 'x'), ('×', 'x'),
+                        ('≤', r'$\le$'), ('≥', r'$\ge$'),
+                        ('·', r'$\cdot$'), ('ε', r'$\epsilon$')]:
         s = s.replace(uni, ascii_)
     s = s.replace('\\', r'\textbackslash{}')
     for ch, esc in [('&', r'\&'), ('%', r'\%'), ('$', r'\$'), ('#', r'\#'),

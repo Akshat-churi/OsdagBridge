@@ -108,6 +108,7 @@ from dataclasses import dataclass, field
 from typing import Optional, List, Literal
 
 from osdagbridge.core.utils.common import (
+    KEY_CARRIAGEWAY_WIDTH,
     KEY_DESIGN_MODE,
     KEY_SPAN,
     KEY_TL_BRIDGE_TEMP_MAX,
@@ -115,7 +116,8 @@ from osdagbridge.core.utils.common import (
     KEY_TL_HIGHEST_MAX_TEMP,
     KEY_TL_LOWEST_MIN_TEMP,
     KEY_TL_TEMP_FALL,
-    KEY_TL_TEMP_RISE
+    KEY_TL_TEMP_RISE,
+    KEY_WC_LD_LANE_TABLE_COUNT
 )
 
 from osdagbridge.core.reports.report_utils import _tex
@@ -254,7 +256,7 @@ def preamble(project_name, job_number, report_date, report_version='Rev 0'):
   \fancyhf{}
   \renewcommand{\headrulewidth}{0pt}
   \fancyfoot[L]{Osdag $|$ FOSSEE $|$ Indian Institute of Technology Bombay}
-  \fancyfoot[R]{Page \thepage\ of \pageref{LastPage}}
+  \fancyfoot[R]{}
   \renewcommand{\footrule}{\color{osdagGreen}\hrule width\headwidth height 1pt \vspace{4pt}}
 }
 \pagestyle{main}
@@ -327,7 +329,6 @@ def title_page(m, osdag_logo, org_logo):
 """
 
     return r"""
-\begin{titlepage}
 \thispagestyle{firstpage}
 \centering
 \vspace*{1.5cm}
@@ -356,7 +357,7 @@ def title_page(m, osdag_logo, org_logo):
 \textbf{Report Version} & """ + (_tex(m.subtitle) if m.subtitle else '') + r""" \\
 \hline
 \end{tabular}
-\end{titlepage}
+\clearpage
 """
 
 
@@ -391,7 +392,6 @@ def toc_section():
   {\hspace*{-3.2em}}
   {\hfill\contentspage}
 
-\newpage
 \renewcommand{\contentsname}{\centering\Large\bfseries Table of Contents}
 \tableofcontents
 """
@@ -772,6 +772,40 @@ def build_report_payload(request, input_dict, output_dict):
                 pl_dict = raw_pl
             else:
                 pl_dict = {}
+
+            # Fallback: Query ProjectLocation SQLite DB if pl_dict is empty and city/location name is provided
+            if not pl_dict and isinstance(raw_pl, str) and raw_pl.strip():
+                try:
+                    from osdagbridge.core.data.project_location.database import Database
+                    db = Database()
+                    db.connect()
+                    query_str = raw_pl.strip()
+                    st_list = db.search_stations(query_str)
+                    if not st_list and ',' in query_str:
+                        st_list = db.search_stations(query_str.split(',')[0].strip())
+                    if not st_list:
+                        city_query = query_str.split(',')[0].split('(')[0].split('-')[0].strip()
+                        if city_query:
+                            st_list = db.search_stations(city_query)
+                    if st_list:
+                        st_match = st_list[0]
+                        if ',' in query_str:
+                            state_candidate = query_str.split(',')[1].strip().lower()
+                            for item in st_list:
+                                if state_candidate in item.get('state', '').lower():
+                                    st_match = item
+                                    break
+                        w_data = db.get_weather_data_by_state_station(st_match['state'], st_match['station'])
+                        if w_data:
+                            pl_dict = {
+                                'data': {
+                                    'latitude': w_data.get('latitude'),
+                                    'longitude': w_data.get('longitude'),
+                                },
+                                'weather_data': w_data,
+                            }
+                except Exception as dbe:
+                    logger.warning(f"Project location DB lookup for '{raw_pl}' failed: {dbe}")
                 
             if pl_dict and isinstance(pl_dict, dict):
                 data = pl_dict.get('data', {})
@@ -781,21 +815,37 @@ def build_report_payload(request, input_dict, output_dict):
                 lat_val = data.get('latitude') or weather.get('latitude')
                 lon_val = data.get('longitude') or weather.get('longitude')
                 
-                if 'latitude' not in input_dict and lat_val:
+                if (not input_dict.get('latitude')) and lat_val:
                     input_dict['latitude'] = lat_val
-                if 'longitude' not in input_dict and lon_val:
+                if (not input_dict.get('longitude')) and lon_val:
                     input_dict['longitude'] = lon_val
                     
-                if 'seismic_zone' not in input_dict and weather.get('zone'):
+                if (not input_dict.get('seismic_zone')) and weather.get('zone'):
                     input_dict['seismic_zone'] = weather.get('zone')
-                if 'wind_speed' not in input_dict and weather.get('wind_speed'):
+                if (not input_dict.get('wind_speed')) and weather.get('wind_speed'):
                     input_dict['wind_speed'] = weather.get('wind_speed')
-                if 'shade_temp_max' not in input_dict and weather.get('max_temp'):
+                if (not input_dict.get('shade_temp_max')) and weather.get('max_temp'):
                     input_dict['shade_temp_max'] = weather.get('max_temp')
-                if 'shade_temp_min' not in input_dict and weather.get('min_temp'):
+                if (not input_dict.get('shade_temp_min')) and weather.get('min_temp'):
                     input_dict['shade_temp_min'] = weather.get('min_temp')
         except Exception as e:
             logger.warning(f"Failed to parse project location data: {e}")
+
+        # Ensure traffic lanes count is populated from Carriageway Width per IRC 5 Cl. 104.3.1
+        if not input_dict.get(KEY_WC_LD_LANE_TABLE_COUNT):
+            try:
+                cw = float(input_dict.get(KEY_CARRIAGEWAY_WIDTH, 7.5) or 7.5)
+                if cw < 5.3:
+                    lanes_count = 1
+                elif cw < 9.6:
+                    lanes_count = 2
+                elif cw < 13.1:
+                    lanes_count = 3
+                else:
+                    lanes_count = max(1, int(cw / 3.5))
+                input_dict[KEY_WC_LD_LANE_TABLE_COUNT] = lanes_count
+            except Exception:
+                input_dict[KEY_WC_LD_LANE_TABLE_COUNT] = 2
 
         # ── Table 3.6 rows 3 & 4: effective bridge temp range and rise/fall ────
         # The computed keys live in output_dict (which is a snapshot of input_dict
@@ -1058,6 +1108,12 @@ def generate_report(payload, request):
                 shutil.copy2(tmp_tex, tex_path)
             if os.path.exists(tmp_pdf):
                 shutil.copy2(tmp_pdf, pdf_path)
+            tmp_log = os.path.join(tmp_dir, request.file_stem + '.log')
+            if os.path.exists(tmp_log):
+                shutil.copy2(tmp_log, os.path.join(request.output_dir, request.file_stem + '.log'))
+            tmp_aux = os.path.join(tmp_dir, request.file_stem + '.aux')
+            if os.path.exists(tmp_aux):
+                shutil.copy2(tmp_aux, os.path.join(request.output_dir, request.file_stem + '.aux'))
 
         if os.path.exists(pdf_path):
             logger.info("Report generated: %s", pdf_path)

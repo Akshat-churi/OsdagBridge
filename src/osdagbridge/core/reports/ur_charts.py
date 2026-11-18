@@ -297,7 +297,9 @@ def generate_ur_charts(output_dict: dict, output_dir: str) -> Dict[str, str]:
         _plot_vertical_panel(ax3, bracing_checks, "Bracing Slenderness (IS 800)", "#e65100")
 
         # Single legend for the dashed red limit line
-        ax1.legend(loc="upper left", framealpha=0.9, fontsize=8.5)
+        h, l = ax1.get_legend_handles_labels()
+        if h:
+            ax1.legend(h, l, loc="upper left", framealpha=0.9, fontsize=8.5)
 
         plt.tight_layout()
         summary_path = os.path.join(output_dir, "ur_summary_chart.png").replace("\\", "/")

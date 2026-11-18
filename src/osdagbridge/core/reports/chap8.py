@@ -78,6 +78,7 @@ IRC SP 114 & 2018 & Seismic Design of Road Bridges \\
 \hline
 \end{tabular}
 \end{table}
+\endgroup
 
 \begingroup
 \setlength{\tabcolsep}{3.5pt}
@@ -99,6 +100,7 @@ IS 2062 & 2011 & Structural steel - yield and ultimate strength by grade \\
 \hline
 \end{tabular}
 \end{table}
+\endgroup
 
 \clearpage
 \section{Analysis and Design Assumptions of This Version}

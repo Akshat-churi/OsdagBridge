@@ -20,6 +20,7 @@ from osdagbridge.core.utils.common import (
     KEY_LL_IRC_CLASS_SV,
     KEY_MATERIAL_DECK_DENSITY,
     KEY_MATERIAL_GIRDER_DENSITY,
+    KEY_MP_GIRDER_DEPTH,
     KEY_PL_SELF_WEIGHT_FACTOR,
     KEY_RL_LOAD_VALUE,
     KEY_SAFETY_KERB_PRESENT,
@@ -193,7 +194,7 @@ def ch3_loads(input_dict):
         f"Pedestrian Live Load Intensity, $p$ & {p_intensity:.3f} & kN/m\\textsuperscript{{2}} & IRC 6 Cl. 206.1 \\\\*[6pt]\n\\hline",
         f"Linear Pedestrian Load ($w_{{fp}} \\times p$) & {w_lin:.2f} & kN/m & IRC 6 Cl. 206.1 \\\\*[6pt]\n\\hline",
         f"Horizontal Kerb / Barrier Load & 5.00 & kN/m & IRC 6 Cl. 206.3 \\\\*[6pt]\n\\hline",
-        f"Pedestrian Parapet / Handrail Load & 1.00 & kN/m & IRC 6 Cl. 206.2 \\[6pt]\n\\hline",
+        f"Pedestrian Parapet / Handrail Load & 1.00 & kN/m & IRC 6 Cl. 206.2 \\\\*[6pt]\n\\hline",
     ]
     fp_table_rows = "\n".join(fp_rows)
 
@@ -213,8 +214,31 @@ def ch3_loads(input_dict):
             _res = IRC6_2017.table_12(float(_h), _ter, float(_vb))
             if not vz_val:
                 vz_val = _res.get("Vz")
+                input_dict[KEY_WL_HOURLY_MEAN_WIND] = f"{float(vz_val):.2f}"
             if not pz_val:
                 pz_val = _res.get("Pz")
+                input_dict[KEY_WL_HOURLY_WIND_PRESSURE] = f"{float(pz_val):.2f}"
+        except Exception:
+            pass
+
+    # Wind forces per IRC 6 Cl. 209 if not user-defined
+    if pz_val and span_m > 0:
+        try:
+            pz_f = float(pz_val)
+            d_val = float(input_dict.get(f"{KEY_MP_GIRDER_DEPTH}.G1.M1", 1.67) or 1.67)
+            if d_val > 15.0:
+                d_val /= 1000.0
+            exp_h = d_val + 0.25 + 0.90
+            a_exp = exp_h * span_m
+            ft = pz_f * 2.0 * a_exp / 1000.0
+            fl = 0.25 * ft
+            fv = pz_f * (8.4 * span_m) / 1000.0 * 0.5
+            if not input_dict.get(KEY_WL_TRANSVERSE_WIND_FORCE):
+                input_dict[KEY_WL_TRANSVERSE_WIND_FORCE] = f"{ft:.2f}"
+            if not input_dict.get(KEY_WL_LONGITUDINAL_WIND_FORCE):
+                input_dict[KEY_WL_LONGITUDINAL_WIND_FORCE] = f"{fl:.2f}"
+            if not input_dict.get(KEY_WL_VERTICAL_WIND_FORCE):
+                input_dict[KEY_WL_VERTICAL_WIND_FORCE] = f"{fv:.2f}"
         except Exception:
             pass
 
@@ -245,19 +269,52 @@ def ch3_loads(input_dict):
                         damping_percent=float(_damp))
             if not sl_zone_factor:
                 sl_zone_factor = _res.get("Z")
+                input_dict[KEY_SL_ZONE_FACTOR] = sl_zone_factor
             if not sl_spectral:
                 sl_spectral = _res.get("Sa_g_adjusted")
+                input_dict[KEY_SL_SPECTRAL_COEFF] = sl_spectral
             if not sl_ah:
                 sl_ah = _res.get("Ah")
+                input_dict[KEY_SL_HORIZONTAL_COEFF] = sl_ah
             if not sl_av:
                 sl_av = round(_res.get("Ah", 0) * 2 / 3, 4)
+                input_dict[KEY_SL_VERTICAL_COEFF] = sl_av
         except Exception:
             pass
 
+    # Horizontal Seismic Base Shear calculation (IRC 6 Cl. 218.5: F = Ah * W)
+    f_seis_long_str = "N/A"
+    f_seis_trans_str = "N/A"
+    try:
+        if sl_ah:
+            ah_val = float(sl_ah)
+            g_wt = float(input_dict.get("steel_girders_wt_total", 0) or 0)
+            c_wt = float(input_dict.get("concrete_deck_wt_total", 0) or 0)
+            r_wt = float(input_dict.get("rebar_deck_wt_total", 0) or 0)
+            cb_wt = float(input_dict.get("crash_barrier_wt_total", 0) or 0)
+            tot_mass = g_wt + c_wt + r_wt + cb_wt
+            if tot_mass > 0:
+                tot_wt_kN = tot_mass * 9.81
+                f_seismic = ah_val * tot_wt_kN
+                f_seis_long_str = f"{f_seismic:.2f} kN"
+                f_seis_trans_str = f"{f_seismic:.2f} kN"
+    except Exception:
+        pass
+
     # ─────────────────────────────────────────────────────────────────────────
-    # Temperature Load (TL)
+    # Wearing Course Load formatting (Table 3.2)
     # ─────────────────────────────────────────────────────────────────────────
-    tl_temp_min = tl_temp_max = tl_rise = tl_fall = "N/A"
+    wc_mat = input_dict.get(KEY_WC_MATERIAL, "Concrete")
+    wc_thk = input_dict.get(KEY_WC_THICKNESS, 50.0)
+    wc_dens = input_dict.get("typical_section.wearing_course.density", 24.0)
+    try:
+        thk_f = float(wc_thk)
+        thk_m = thk_f / 1000.0 if thk_f > 1.0 else thk_f
+        dens_f = float(wc_dens)
+        load_f = thk_m * dens_f
+        wc_display = f"{_tex(str(wc_mat))} ({thk_m*1000.0:.1f} mm thick, {dens_f:.1f} kN/m\\textsuperscript{{3}} $\\rightarrow$ {load_f:.2f} kN/m\\textsuperscript{{2}})"
+    except Exception:
+        wc_display = f"{_tex(str(wc_mat))} ({wc_thk} mm)"
     try:
         _tmax = input_dict.get(KEY_TL_HIGHEST_MAX_TEMP) or input_dict.get('shade_temp_max')
         _tmin = input_dict.get(KEY_TL_LOWEST_MIN_TEMP) or input_dict.get('shade_temp_min')
@@ -368,7 +425,7 @@ This section summarizes all applied loads and load combinations considered for t
 \endfoot
 \hline
 \endlastfoot
-\textnormal{Wearing Course Load} & """ + (_render_value(input_dict, KEY_WC_MATERIAL)) + r""" x """ + (_render_value(input_dict, KEY_WC_THICKNESS)) + r""" \\[6pt]
+\textnormal{Wearing Course Load} & """ + wc_display + r""" \\[6pt]
 \hline
 \textnormal{Additional SIDL (Crash Barrier)} & """ + (_render_value(input_dict, KEY_CB_LOAD)) + r""" kN/m per barrier \\[6pt]
 \hline
@@ -478,9 +535,9 @@ This section summarizes all applied loads and load combinations considered for t
 \hline
 \textnormal{Vertical Seismic Coefficient, Av} & """ + (_render_value(input_dict, KEY_SL_VERTICAL_COEFF)) + r""" \\[6pt]
 \hline
-\textnormal{Horizontal Seismic Force (longitudinal)} & """ + '' + r""" kN \\[6pt]
+\textnormal{Horizontal Seismic Force (longitudinal)} & """ + f_seis_long_str + r""" \\[6pt]
 \hline
-\textnormal{Horizontal Seismic Force (transverse)} & """ + '' + r""" kN \\[6pt]
+\textnormal{Horizontal Seismic Force (transverse)} & """ + f_seis_trans_str + r""" \\[6pt]
 \hline
 \end{longtable}
 
@@ -506,7 +563,7 @@ This section summarizes all applied loads and load combinations considered for t
 \hline
 \textnormal{Effective Bridge Temp. Range} & """ + (_render_value(input_dict, KEY_TL_BRIDGE_TEMP_MIN)) + r""" to """ + (_render_value(input_dict, KEY_TL_BRIDGE_TEMP_MAX)) + r""" $^\circ$C \\[6pt]
 \hline
-\textnormal{Temperature Rise / Fall for Design} & +""" + (_render_value(input_dict, KEY_TL_TEMP_RISE)) + r""" $^\circ$C / \textminus{}""" + (_render_value(input_dict, KEY_TL_TEMP_FALL)) + r""" $^\circ$C \\[6pt]
+\textnormal{Temperature Rise / Fall for Design} & +""" + (_render_value(input_dict, KEY_TL_TEMP_RISE)) + r""" $^\circ$C / $-$""" + (_render_value(input_dict, KEY_TL_TEMP_FALL)) + r""" $^\circ$C \\[6pt]
 \hline
 \end{longtable}
 
