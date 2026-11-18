@@ -267,6 +267,21 @@ def preamble(project_name, job_number, report_date, report_version='Rev 0'):
 \newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
 \newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}}
 
+% Prevent \cline from breaking blocks protected by \\* in longtable
+\makeatletter
+\def\@cline#1-#2\@nil{%
+  \omit
+  \@multicnt#1%
+  \advance\@multispan\m@ne
+  \ifnum\@multicnt=\@ne\@firstofone{&\omit}\fi
+  \@multicnt#2%
+  \advance\@multicnt-#1%
+  \advance\@multispan\@ne
+  \leaders\hrule\@height\arrayrulewidth\hfill
+  \cr
+  \noalign{\nobreak\vskip-\arrayrulewidth\nobreak}}
+\makeatother
+
 % Software-default asterisk
 \newcommand{\sdstar}{\textsuperscript{*}}
 \newbool{hasSDonPage}
