@@ -177,6 +177,28 @@ def executive_summary(input_dict, output_dict, fig_paths) -> str:
               r'\hline' + '\n'
               r'\end{tabular}')
 
+    ur_summary_path = fig_paths.get('ur_summary')
+    ur_fig = ""
+    if ur_summary_path:
+        ur_fig = (
+            r"""
+\newpage
+\section*{Utilization Ratio (Demand / Capacity) Summary}
+\addcontentsline{toc}{section}{Utilization Ratio Summary}
+\label{sec:ur-summary}
+
+The overall Utilization Ratio ($\text{UR} = \text{Demand} / \text{Capacity}$) visualizes the structural safety margin across all primary bridge elements under governing IRC/IS load combinations. Ratios $\le 1.0$ indicate safe, code-compliant design.
+
+"""
+            + _fig_or_placeholder(ur_summary_path, 'Figure 4 -- Primary Element Utilization Ratio (Demand / Capacity) Summary', width=r'0.95\textwidth')
+            + "\n"
+        )
+
+    girder_outcome = r"\textbf{Plate Girder Design:} " + (r"\textcolor{red}{Fail (" + _tex(", ".join(failing)) + r")}" if failing else r"\textcolor{osdagGreen}{Pass}")
+    cb_outcome = r"\textbf{Cross Bracing Design:} " + (r"\textcolor{red}{Fail}" if (_max_member_efficiency(cb_results) or 0) > 1.0 else r"\textcolor{osdagGreen}{Pass}")
+    ed_outcome = r"\textbf{End Diaphragm Design:} " + (r"\textcolor{red}{Fail}" if (_max_member_efficiency(ed_results) or 0) > 1.0 else r"\textcolor{osdagGreen}{Pass}")
+    deck_outcome = r"\textbf{Deck Slab Design:} " + (r"\textcolor{red}{Fail}" if (deck_max or 0) > 1.0 else r"\textcolor{osdagGreen}{Pass}")
+
     return r"""
 \newpage
 {\centering\Large\bfseries Executive Summary\par}
@@ -219,21 +241,27 @@ This section provides a concise summary of the bridge design, key inputs, govern
 
 \newpage
 
-""" + cs_fig + '\n\n' + geom_fig + '\n\n' + table1 + r"""
+""" + cs_fig + '\n\n' + geom_fig + r"""
+
+\newpage
+
+""" + table1 + r"""
 
 \vspace{0.4em}
-\noindent\textit{Note: Utilization ratio (UR) = demand / capacity. A value $< 1.0$ indicates a passing check.}
+\noindent\textit{Note: Utilization ratio (UR) = demand / capacity. A value $\le 1.0$ indicates a passing check.}
 
-\vspace{1em}
+""" + ur_fig + r"""
 
 \section*{Key Design Outcomes Summary}
 \addcontentsline{toc}{section}{Key Design Outcomes Summary}
 \label{sec:key-outcomes}
 
-\noindent Girder design pass \\
-Cross bracing design pass \\
-End Diaphragm design pass \\
-Deck design pass
+\begin{itemize}
+\item """ + girder_outcome + r"""
+\item """ + deck_outcome + r"""
+\item """ + cb_outcome + r"""
+\item """ + ed_outcome + r"""
+\end{itemize}
 
 \section*{Design Assumptions and Limitations}
 \addcontentsline{toc}{section}{Design Assumptions and Limitations}

@@ -156,7 +156,16 @@ def preamble(project_name, job_number, report_date, report_version='Rev 0'):
 \documentclass[12pt,a4paper]{report}
 
 % Packages
-\usepackage[a4paper, margin=1in]{geometry}
+\usepackage[
+    a4paper,
+    top=26mm,
+    bottom=32mm,
+    left=20mm,
+    right=20mm,
+    headheight=16pt,
+    headsep=12pt,
+    footskip=15mm
+]{geometry}
 \usepackage{graphicx}
 \usepackage{amsmath}
 \usepackage{amssymb}
@@ -193,13 +202,13 @@ def preamble(project_name, job_number, report_date, report_version='Rev 0'):
 \numberwithin{table}{chapter}
 \numberwithin{figure}{chapter}
 % Table layout and spacing: consistent padding, row height, and longtable pre/post skips
-\setlength{\tabcolsep}{6pt}
-\renewcommand{\arraystretch}{1.12}
-\setlength{\LTpre}{0pt}
-\setlength{\LTpost}{6pt}
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.15}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{8pt}
 % Table rules (outline thickness) and small extra row height for clarity
 \setlength{\arrayrulewidth}{0.5pt}
-\setlength{\extrarowheight}{0.6pt}
+\setlength{\extrarowheight}{1.0pt}
 
 % Prevent tables from overflowing past the page bottom:
 % if fewer than 5 baseline-skips remain, break to the next page first.
@@ -217,13 +226,11 @@ def preamble(project_name, job_number, report_date, report_version='Rev 0'):
   \renewcommand{\headrule}{\color{osdagGreen}\hrule width\headwidth height 1pt \vspace{2pt}}
   \renewcommand{\footrule}{%
     \ifbool{hasSDonPage}{%
-      \vspace{-20pt}%
+      \vspace{-4pt}%
       \hbox to \headwidth{\textcolor{black}{\footnotesize\textit{* Software default value}}\hfil}%
-      \vspace{4pt}%
-    }{%
-      \vspace{-8pt}%
-    }%
-    \color{osdagGreen}\hrule width\headwidth height 1pt \vspace{6pt}%
+      \vspace{2pt}%
+    }{}%
+    \color{osdagGreen}\hrule width\headwidth height 1pt \vspace{4pt}%
   }
 }
 \fancypagestyle{plain}{
@@ -235,13 +242,11 @@ def preamble(project_name, job_number, report_date, report_version='Rev 0'):
   \renewcommand{\headrule}{\color{osdagGreen}\hrule width\headwidth height 1pt \vspace{2pt}}
   \renewcommand{\footrule}{%
     \ifbool{hasSDonPage}{%
-      \vspace{-20pt}%
+      \vspace{-4pt}%
       \hbox to \headwidth{\textcolor{black}{\footnotesize\textit{* Software default value}}\hfil}%
-      \vspace{4pt}%
-    }{%
-      \vspace{-8pt}%
-    }%
-    \color{osdagGreen}\hrule width\headwidth height 1pt \vspace{6pt}%
+      \vspace{2pt}%
+    }{}%
+    \color{osdagGreen}\hrule width\headwidth height 1pt \vspace{4pt}%
   }
 }
 \fancypagestyle{firstpage}{
@@ -249,7 +254,7 @@ def preamble(project_name, job_number, report_date, report_version='Rev 0'):
   \renewcommand{\headrulewidth}{0pt}
   \fancyfoot[L]{Osdag $|$ FOSSEE $|$ Indian Institute of Technology Bombay}
   \fancyfoot[R]{Page \thepage\ of \pageref{LastPage}}
-  \renewcommand{\footrule}{\vspace{-8pt}\color{osdagGreen}\hrule width\headwidth height 1pt \vspace{6pt}}
+  \renewcommand{\footrule}{\color{osdagGreen}\hrule width\headwidth height 1pt \vspace{4pt}}
 }
 \pagestyle{main}
 \setstretch{1.15}
@@ -429,6 +434,9 @@ class ReportFigures:
     defl_ll:         Optional[str] = None
     shear_connector: Optional[str] = None
     cross_bracing:   Optional[str] = None
+    ur_summary:      Optional[str] = None
+    ur_girders:      Optional[str] = None
+    ur_deck:         Optional[str] = None
 
 @dataclass
 class ReportPayload:
@@ -831,6 +839,9 @@ _FIGURE_MAP = [
     ('bm_envelope',           'bm_envelope.png'),
     ('sf_envelope',           'sf_envelope.png'),
     ('defl_ll',               'defl_ll.png'),
+    ('ur_summary',            'ur_summary_chart.png'),
+    ('ur_girders',            'ur_girders_chart.png'),
+    ('ur_deck',               'ur_deck_chart.png'),
 ]
 
 def generate_report(payload, request):
@@ -875,6 +886,15 @@ def generate_report(payload, request):
                         fh.write(img_bytes)
                     fig_paths[attr] = p.replace('\\', '/')
             payload.figure_data.clear()  # bytes no longer needed — free RAM now
+
+            # ── Generate UR (Utilization Ratio) summary charts programmatically ──
+            try:
+                from osdagbridge.core.reports.ur_charts import generate_ur_charts
+                ur_chart_paths = generate_ur_charts(payload.output_dict, tmp_images)
+                for k, v in ur_chart_paths.items():
+                    fig_paths[k] = v.replace('\\', '/')
+            except Exception as e:
+                logger.warning("Failed to generate UR charts: %s", e)
 
             # ── Write title-page logos into tmp_dir/assets (auto-deleted) ──
             # Nothing is left next to the PDF. Latex paths are relative to tmp_dir.
@@ -924,7 +944,7 @@ def generate_report(payload, request):
             if 'analysis' in secs:
                 doc_parts.append(ch4_analysis(payload.analysis_summary, fig_paths, bridge, span_m))
             if 'design_checks' in secs:
-                doc_parts.append(ch5_design_checks(payload.design_checks, bridge))
+                doc_parts.append(ch5_design_checks(payload.design_checks, bridge, fig_paths))
             if 'drawings' in secs and payload.options.include_figures:
                 doc_parts.append(ch6_drawings(fig_paths))
 
